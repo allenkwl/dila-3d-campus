@@ -60,7 +60,8 @@ python3 scripts/fetch_tiles.py terrain && python3 scripts/fetch_tiles.py ortho 1
 
 - 建物輪廓：© OpenStreetMap contributors（ODbL）。範圍內 37 棟，部分沒有名稱。
 - 地面影像：國土測繪中心 NLSC 正射影像（PHOTO2，2024），政府資料開放授權。
-- 地形：AWS Terrain Tiles（Terrarium，zoom 15，約 4 公尺格點）。
+- 地形：AWS Terrain Tiles（Terrarium，zoom 15）。校區內 4 公尺格點；外圍再延伸約 2.5 公里（20 公尺格點、zoom 16 影像），鏡頭中心限制在校區內，地圖邊緣不會入鏡。外圍資料用 `python3 scripts/fetch_tiles.py outer` 下載。
+- 校門位置依文理學院「校園大樓地圖」與「校園安全地圖」（https://www.dila.edu.tw/campus1 、/building1）確認，並新增北校門。
 - 樹木：依正射影像的深綠色像素自動撒點，不是實際樹木位置。
 - **建物高度依官方樓層數推估**（每層約 3.5 公尺，大殿另加高），沒有樓層資料的依面積估計，需要總務處核對。
 - 地標說明取自法鼓山官網「園區介紹」與文理學院「校舍介紹」，資料卡附來源連結；曹源書苑、東校門、正門尚待確認。

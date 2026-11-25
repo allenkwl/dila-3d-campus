@@ -23,9 +23,10 @@ def get(url, path):
                 print('retry', url, ex); time.sleep(2 ** i)
     return Image.open(path)
 
-def mosaic(name, z, url_fmt, ext):
-    x0, y0 = tile_xy(cfg['north'], cfg['west'], z)
-    x1, y1 = tile_xy(cfg['south'], cfg['east'], z)
+def mosaic(name, z, url_fmt, ext, b=None):
+    b = b or cfg
+    x0, y0 = tile_xy(b['north'], b['west'], z)
+    x1, y1 = tile_xy(b['south'], b['east'], z)
     tx0, ty0, tx1, ty1 = int(x0), int(y0), int(x1), int(y1)
     W, H = (tx1 - tx0 + 1) * 256, (ty1 - ty0 + 1) * 256
     img = Image.new('RGB', (W, H))
@@ -43,6 +44,12 @@ if __name__ == '__main__':
         z = int(sys.argv[2]) if len(sys.argv) > 2 else 18
         im = mosaic('nlsc', z, 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}', 'jpg')
         im.save(os.path.join(ROOT, f'.cache/ortho_z{z}.jpg'), quality=90); print('ortho', im.size)
+    elif what == 'outer':
+        # 外圍：較低解析度的地形與影像，讓地圖邊緣不會出現在畫面中
+        im = mosaic('nlsc', 16, 'https://wmts.nlsc.gov.tw/wmts/PHOTO2/default/GoogleMapsCompatible/{z}/{y}/{x}', 'jpg', cfg['outer'])
+        im.save(os.path.join(ROOT, '.cache/outer_ortho_z16.jpg'), quality=88); print('outer ortho', im.size)
+        im = mosaic('terrarium', 15, 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png', 'png', cfg['outer'])
+        im.save(os.path.join(ROOT, '.cache/outer_terrain_z15.png')); print('outer terrain', im.size)
     elif what == 'terrain':
         z = 15
         im = mosaic('terrarium', z, 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png', 'png')

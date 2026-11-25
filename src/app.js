@@ -17,7 +17,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 const scene = new THREE.Scene();
 const SKY = new THREE.Color('#cdd9e0');
 scene.background = SKY;
-scene.fog = new THREE.Fog(SKY, 1800, 4200);
+scene.fog = new THREE.Fog(SKY, 2200, 5200);
 
 const camera = new THREE.PerspectiveCamera(40, 1, 2, 8000);
 const controls = new MapControls(camera, canvas);
@@ -25,7 +25,7 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.12;
 controls.maxPolarAngle = 1.32;
 controls.minDistance = 25;
-controls.maxDistance = 2600;
+controls.maxDistance = 1900;
 controls.screenSpacePanning = false;
 
 // ---------- 光線 ----------
@@ -81,6 +81,40 @@ const plainMat = new THREE.MeshLambertMaterial({ vertexColors: true });
 const terrain = new THREE.Mesh(terrainGeo, photoMat);
 terrain.receiveShadow = true;
 scene.add(terrain);
+
+// ---------- 外圍地形：低解析度，讓地圖邊緣不入鏡；和內圈重疊的部分挖空 ----------
+const outerMesh = await (async () => {
+  const O = data.outer;
+  if (!O) return null;
+  const { nx, nz, step, x0, z0 } = O;
+  const pos = new Float32Array(nx * nz * 3), uv = new Float32Array(nx * nz * 2);
+  for (let r = 0; r < nz; r++) for (let c = 0; c < nx; c++) {
+    const i = r * nx + c, x = x0 + c * step, z = z0 + r * step;
+    pos.set([x, O.h[i], z], i * 3);
+    uv.set([(x - O.x0) / (O.x1 - O.x0), 1 - (z - O.z0) / (O.z1 - O.z0)], i * 2);
+  }
+  const ix0 = G.x0 + step, iz0 = G.z0 + step, ix1 = G.x0 + (G.nx - 1) * G.step - step, iz1 = G.z0 + (G.nz - 1) * G.step - step;
+  const inside = (c, r) => { const x = x0 + c * step, z = z0 + r * step; return x > ix0 && x < ix1 && z > iz0 && z < iz1; };
+  const idx = [];
+  for (let r = 0; r < nz - 1; r++) for (let c = 0; c < nx - 1; c++) {
+    if (inside(c, r) && inside(c + 1, r) && inside(c, r + 1) && inside(c + 1, r + 1)) continue;
+    const a = r * nx + c, b = a + 1, d = a + nx, e = d + 1;
+    idx.push(a, d, b, b, d, e);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  const tex = await new THREE.TextureLoader().loadAsync('data/ortho_outer.jpg');
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  // polygonOffset 把外圈稍微往後推，避免和內圈交界處閃爍
+  const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: tex, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2 }));
+  m.receiveShadow = true;
+  scene.add(m);
+  return m;
+})();
 
 // ---------- 建物 ----------
 const buildings = data.buildings;
@@ -152,10 +186,33 @@ function addHipRoof(b, p, id, roofColor, wallColor) {
   const hw = p.w / 2, hd = p.d / 2, o = b.overhang;
   if (p.top > b.top + 0.1) {
     const cs = [[-hw, -hd], [hw, -hd], [hw, hd], [-hw, hd]];
+    // 有柱廊時：牆面往內縮、顏色壓暗（廊下陰影），外圈立一排柱子
+    const col = b.colonnade && p.tiers ? new THREE.Color(b.colonnade) : null;
+    const inset = col ? 2.2 : 0;
+    const band = col ? wallColor.clone().multiplyScalar(0.55) : wallColor;
+    const ati = (u, v, y) => at(u - Math.sign(u) * inset, v - Math.sign(v) * inset, y);
     for (let i = 0; i < 4; i++) {
       const [u1, v1] = cs[i], [u2, v2] = cs[(i + 1) % 4];
-      pushTri(wallPos, wallCol, wallOwner, id, wallColor, at(u1, v1, b.top), at(u2, v2, b.top), at(u2, v2, p.top));
-      pushTri(wallPos, wallCol, wallOwner, id, wallColor, at(u1, v1, b.top), at(u2, v2, p.top), at(u1, v1, p.top));
+      pushTri(wallPos, wallCol, wallOwner, id, band, ati(u1, v1, b.top), ati(u2, v2, b.top), ati(u2, v2, p.top));
+      pushTri(wallPos, wallCol, wallOwner, id, band, ati(u1, v1, b.top), ati(u2, v2, p.top), ati(u1, v1, p.top));
+    }
+    if (col) {
+      // 廊道地板
+      const fl = wallColor.clone().multiplyScalar(0.8);
+      pushTri(roofPos, roofCol, roofOwner, id, fl, at(-hw, -hd, b.top), at(hw, -hd, b.top), at(hw, hd, b.top));
+      pushTri(roofPos, roofCol, roofOwner, id, fl, at(-hw, -hd, b.top), at(hw, hd, b.top), at(-hw, hd, b.top));
+      const r = 0.6;
+      const box = (u, v) => {
+        const q = [[u - r, v - r], [u + r, v - r], [u + r, v + r], [u - r, v + r]];
+        for (let k = 0; k < 4; k++) {
+          const [a1, b1] = q[k], [a2, b2] = q[(k + 1) % 4];
+          pushTri(wallPos, wallCol, wallOwner, id, col, at(a1, b1, b.top), at(a2, b2, b.top), at(a2, b2, p.top));
+          pushTri(wallPos, wallCol, wallOwner, id, col, at(a1, b1, b.top), at(a2, b2, p.top), at(a1, b1, p.top));
+        }
+      };
+      const nu = Math.max(2, Math.round((2 * hw) / 5)), nv = Math.max(2, Math.round((2 * hd) / 5));
+      for (let k = 0; k <= nu; k++) { const u = -hw + r + (2 * hw - 2 * r) * k / nu; box(u, -hd + r); box(u, hd - r); }
+      for (let k = 1; k < nv; k++) { const v = -hd + r + (2 * hd - 2 * r) * k / nv; box(-hw + r, v); box(hw - r, v); }
     }
   }
   const rise = Math.min(b.pitch * (hd + o), 8);
@@ -470,7 +527,12 @@ $('#btn-panel').addEventListener('click', () => { $('#app').classList.toggle('pa
 $('#btn-fs').addEventListener('click', () => {
   if (document.fullscreenElement) document.exitFullscreen(); else $('#app').requestFullscreen?.();
 });
-$('#opt-photo').addEventListener('change', (e) => { terrain.material = e.target.checked ? photoMat : plainMat; });
+const outerPhotoMat = outerMesh?.material;
+const outerPlainMat = new THREE.MeshLambertMaterial({ color: '#6f8a4f', polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2 });
+$('#opt-photo').addEventListener('change', (e) => {
+  terrain.material = e.target.checked ? photoMat : plainMat;
+  if (outerMesh) outerMesh.material = e.target.checked ? outerPhotoMat : outerPlainMat;
+});
 $('#opt-trees').addEventListener('change', (e) => { treeMesh.visible = e.target.checked; });
 $('#opt-labels').addEventListener('change', (e) => { labelsEl.style.display = e.target.checked ? '' : 'none'; });
 
@@ -523,6 +585,20 @@ function updateLabels() {
     c.p.el.style.zIndex = String(Math.round((1 - c.z) * 100000));
   }
 }
+// 鏡頭中心不能離開校區範圍，使用者無法把校園移出畫面
+const BOUND = { x0: G.x0 + 60, x1: G.x0 + (G.nx - 1) * G.step - 60, z0: G.z0 + 60, z1: G.z0 + (G.nz - 1) * G.step - 60 };
+function clampView() {
+  const t = controls.target;
+  const cx = Math.min(BOUND.x1, Math.max(BOUND.x0, t.x)), cz = Math.min(BOUND.z1, Math.max(BOUND.z0, t.z));
+  if (cx !== t.x || cz !== t.z) {
+    const dx = cx - t.x, dz = cz - t.z;
+    t.x = cx; t.z = cz;
+    camera.position.x += dx; camera.position.z += dz;
+  }
+  // 鏡頭也不要鑽到地面下
+  const gy = groundY(camera.position.x, camera.position.z);
+  if (Number.isFinite(gy) && camera.position.y < gy + 8) camera.position.y = gy + 8;
+}
 function tick(now) {
   if (anim) {
     const t = Math.min(1, (now - anim.t0) / 1100), k = t * t * (3 - 2 * t);
@@ -531,6 +607,7 @@ function tick(now) {
     if (t === 1) anim = null;
   }
   controls.update();
+  clampView();
   renderer.render(scene, camera);
   updateLabels();
   requestAnimationFrame(tick);

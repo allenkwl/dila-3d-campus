@@ -10,6 +10,14 @@
   },
   {
    "src": "data/photos/general-2.jpg",
+   "w": 1200,
+   "h": 694,
+   "credit": "法鼓文理學院",
+   "link": "https://www.dila.edu.tw/campus1",
+   "caption": ""
+  },
+  {
+   "src": "data/photos/general-3.jpg",
    "w": 1280,
    "h": 795,
    "credit": "Yu tptw／CC BY-SA 4.0（Wikimedia Commons）",
@@ -17,7 +25,7 @@
    "caption": "​法鼓文理學院綜合大樓"
   },
   {
-   "src": "data/photos/general-3.jpg",
+   "src": "data/photos/general-4.jpg",
    "w": 580,
    "h": 387,
    "credit": "法鼓文理學院",
@@ -50,6 +58,14 @@
    "h": 387,
    "credit": "法鼓文理學院",
    "link": "https://www.dila.edu.tw/building1",
+   "caption": ""
+  },
+  {
+   "src": "data/photos/gym-2.jpg",
+   "w": 580,
+   "h": 388,
+   "credit": "法鼓文理學院",
+   "link": "https://www.dila.edu.tw/campus1",
    "caption": ""
   }
  ],
@@ -167,6 +183,14 @@
   {
    "src": "data/photos/bldg2-5.jpg",
    "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010001015304202746",
+   "caption": "遊覽車平台"
+  },
+  {
+   "src": "data/photos/bldg2-6.jpg",
+   "w": 960,
    "h": 638,
    "credit": "法鼓山世界佛教教育園區",
    "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010537089382446672",
@@ -213,6 +237,14 @@
    "credit": "法鼓山世界佛教教育園區",
    "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010590721761923000",
    "caption": ""
+  },
+  {
+   "src": "data/photos/bldg3-6.jpg",
+   "w": 640,
+   "h": 428,
+   "credit": "Orinch／CC BY-SA 3.0（Wikimedia Commons）",
+   "link": "https://commons.wikimedia.org/wiki/File:Dharma_Drum_Buddhist_College.jpg",
+   "caption": "The main entrance of the Dharma Drum Buddhist College."
   }
  ],
  "conference": [
@@ -317,6 +349,14 @@
    "credit": "法鼓山世界佛教教育園區",
    "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010705859949206028",
    "caption": ""
+  },
+  {
+   "src": "data/photos/sanmen-4.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+   "caption": "曹源溪、三門大石公園"
   }
  ],
  "fahua-shuyuan": [
@@ -335,8 +375,32 @@
    "w": 960,
    "h": 640,
    "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+   "caption": "大停車場"
+  },
+  {
+   "src": "data/photos/parking-2.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+   "caption": "來迎觀音公園"
+  },
+  {
+   "src": "data/photos/parking-3.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
    "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010687763484039254",
    "caption": ""
+  },
+  {
+   "src": "data/photos/parking-4.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+   "caption": "臨溪朝山步道"
   }
  ],
  "great-vow-bridge": [
@@ -355,6 +419,24 @@
    "credit": "Yu tptw／CC BY-SA 4.0（Wikimedia Commons）",
    "link": "https://commons.wikimedia.org/wiki/File:DILA_campus_2024.jpg",
    "caption": "​法鼓文理學院校園"
+  },
+  {
+   "src": "data/photos/great-vow-bridge-3.jpg",
+   "w": 580,
+   "h": 388,
+   "credit": "法鼓文理學院",
+   "link": "https://www.dila.edu.tw/campus1",
+   "caption": ""
+  }
+ ],
+ "men-dorm": [
+  {
+   "src": "data/photos/men-dorm-1.jpg",
+   "w": 960,
+   "h": 505,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0M029514997931693860",
+   "caption": ""
   }
  ]
 }

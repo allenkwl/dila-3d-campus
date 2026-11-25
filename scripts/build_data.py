@@ -163,31 +163,6 @@ def decompose(poly, snap=1.2, min_side=3.0):
     return rects
 
 
-def clip_rect(poly, x0, z0, x1, z1):
-    """Sutherland–Hodgman：把輪廓裁到場景矩形內（超出地形邊界的部分不畫）。"""
-    def clip(pts, inside, cross):
-        out = []
-        for i in range(len(pts)):
-            a, b = pts[i - 1], pts[i]
-            if inside(b):
-                if not inside(a):
-                    out.append(cross(a, b))
-                out.append(b)
-            elif inside(a):
-                out.append(cross(a, b))
-        return out
-    def at_x(x):
-        return lambda a, b: (x, a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]))
-    def at_z(z):
-        return lambda a, b: (a[0] + (b[0] - a[0]) * (z - a[1]) / (b[1] - a[1]), z)
-    for inside, cross in [(lambda p: p[0] >= x0, at_x(x0)), (lambda p: p[0] <= x1, at_x(x1)),
-                          (lambda p: p[1] >= z0, at_z(z0)), (lambda p: p[1] <= z1, at_z(z1))]:
-        poly = clip(poly, inside, cross)
-        if not poly:
-            break
-    return poly
-
-
 # 園區範圍：法鼓山世界佛教教育園區＋法鼓文理學院（OSM）；範圍外的建物只當灰色背景
 CAMPUS_IDS = (387137553, 1255168300)
 campus_polys = [[to_xz(p['lat'], p['lon']) for p in e['geometry']]
@@ -208,10 +183,7 @@ for e in osm['elements']:
     if ll[0] == ll[-1]:
         ll = ll[:-1]
     ov = overrides['buildings'].get(str(e['id']), {})
-    poly = clip_rect([to_xz(*p) for p in ll], x_w + 1, z_n + 1, x_e - 1, z_s - 1)
-    if len(poly) < 3:
-        continue
-    ll = [(LAT0 - z / MZ, LON0 + x / MX) for x, z in poly]
+    poly = [to_xz(*p) for p in ll]
     a = area(poly)
     cxz = to_xz(clat, clon)
     context = not ov.get('campus') and not any(point_in_poly(cxz[0], cxz[1], cp) for cp in campus_polys)
@@ -262,6 +234,7 @@ for e in osm['elements']:
         'context': context,
         'base_': ov.get('base'),      # 基座（下段牆面）顏色
         'baseH': ov.get('baseH', 0),
+        'colonnade': ov.get('colonnade'),   # 主體上段柱廊顏色（如大殿的白色列柱）
         'roofType': roof_type,
     }
     if roof_type != 'flat':
@@ -319,6 +292,80 @@ for x in overrides.get('extras', []):
         rec['y'] = b['top']    # 站在平台上
     extras.append(rec)
 
+# ---------- 外圍地形（低解析度，讓地圖邊緣不入鏡） ----------
+OB = cfg['outer']
+o_img = Image.open(os.path.join(ROOT, '.cache/outer_terrain_z15.png')).convert('RGB')
+o_px = o_img.load()
+o_r = Raster(o_img, 15)
+o_r.x0, o_r.y0 = merc(OB['north'], OB['west'], 15)
+OW, OH = o_img.size
+
+
+def o_elev(lat, lon):
+    u, v = o_r.uv(lat, lon)
+    i = min(max(int(u), 0), OW - 1); j = min(max(int(v), 0), OH - 1)
+    r, g, b = o_px[i, j]
+    return max(r * 256 + g + b / 256 - 32768, -1.0)   # 海底深度壓到海平面
+
+
+OSTEP = 20.0
+ox_w, oz_n = to_xz(OB['north'], OB['west'])
+ox_e, oz_s = to_xz(OB['south'], OB['east'])
+onx = int((ox_e - ox_w) / OSTEP) + 1
+onz = int((oz_s - oz_n) / OSTEP) + 1
+ogrid = []
+for r in range(onz):
+    lat = LAT0 - (oz_n + r * OSTEP) / MZ
+    for c in range(onx):
+        x = ox_w + c * OSTEP
+        # 和內圈重疊處直接取內圈的高度，接縫才會對齊
+        if x_w <= x <= x_e and z_n <= oz_n + r * OSTEP <= z_s:
+            ogrid.append(round(elev(lat, LON0 + x / MX)))
+        else:
+            ogrid.append(round(o_elev(lat, LON0 + x / MX)))
+# 外圈影像：無資料的深色海面補成海水色
+o_ortho = Image.open(os.path.join(ROOT, '.cache/outer_ortho_z16.jpg')).convert('RGB')
+op = o_ortho.load()
+oo = Raster(o_ortho, 16)
+oo.x0, oo.y0 = merc(OB['north'], OB['west'], 16)
+# 只在海平面以下（地形 ≤ 0.5 公尺）的位置補海水色，避免把山的陰影誤判成海
+sea = Image.new('L', o_img.size)
+sp = sea.load()
+for y in range(OH):
+    for x in range(OW):
+        r, g, b = o_px[x, y]
+        sp[x, y] = 255 if r * 256 + g + b / 256 - 32768 <= 0.5 else 0
+sea = sea.resize(o_ortho.size, Image.NEAREST).load()
+for y in range(0, o_ortho.size[1]):
+    for x in range(0, o_ortho.size[0]):
+        if sea[x, y]:
+            r, g, b = op[x, y]
+            if r < 60 and g < 80:
+                op[x, y] = (40, 104, 122)
+o_ortho.save(os.path.join(ROOT, 'data/ortho_outer.jpg'), quality=78)
+
+# 外圍樹木：內圈外 500 公尺帶狀範圍，間距較大
+TS2 = 9.0
+z = oz_n
+while z < oz_s:
+    x = ox_w
+    while x < ox_e:
+        inside_inner = x_w < x < x_e and z_n < z < z_s
+        near = x_w - 500 < x < x_e + 500 and z_n - 500 < z < z_s + 500
+        if near and not inside_inner:
+            jx = x + random.uniform(-3, 3); jz = z + random.uniform(-3, 3)
+            lat = LAT0 - jz / MZ; lon = LON0 + jx / MX
+            u, v = oo.uv(lat, lon)
+            if 0 <= u < o_ortho.size[0] and 0 <= v < o_ortho.size[1]:
+                r, g, b = op[int(u), int(v)]
+                lum = 0.3 * r + 0.59 * g + 0.11 * b
+                if g > r + 4 and g > b + 2 and lum < 95 and o_elev(lat, lon) > 2:
+                    s_ = random.uniform(0.8, 1.4)
+                    trees.append([round(jx, 1), round(o_elev(lat, lon), 1), round(jz, 1), round(s_, 2),
+                                  int(r * 0.9), int(g * 0.95), int(b * 0.8)])
+        x += TS2
+    z += TS2
+
 # ---------- 地標 ----------
 places = []
 for p in overrides['places']:
@@ -337,6 +384,8 @@ out = {
     'origin': cfg['origin'],
     'grid': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'step': GRID, 'nx': nx, 'nz': nz, 'h': grid},
     'ortho': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'x1': round(x_e, 2), 'z1': round(z_s, 2)},
+    'outer': {'x0': round(ox_w, 2), 'z0': round(oz_n, 2), 'x1': round(ox_e, 2), 'z1': round(oz_s, 2),
+              'step': OSTEP, 'nx': onx, 'nz': onz, 'h': ogrid},
     'buildings': buildings,
     'extras': extras,
     'trees': trees,

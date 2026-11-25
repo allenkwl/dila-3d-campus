@@ -21,7 +21,8 @@
     "524912890": {
       "height": 17,
       "roofType": "flat",
-      "wall": "#c9c3b6"
+      "wall": "#c9c3b6",
+      "name": "禪悅書苑"
     },
     "524884387": {
       "height": 20,
@@ -70,7 +71,8 @@
       "wall": "#d9d5cb",
       "base": "#7b8083",
       "baseH": 14,
-      "roof": "#5c6462"
+      "roof": "#5c6462",
+      "colonnade": "#f1efe9"
     },
     "386376074": {
       "height": 22,
@@ -131,13 +133,15 @@
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
-      "roof": "#66706b"
+      "roof": "#66706b",
+      "name": "男寮"
     },
     "524884384": {
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
-      "roof": "#66706b"
+      "roof": "#66706b",
+      "name": "男寮"
     },
     "524884391": {
       "wall": "#a3a6a4",
@@ -239,6 +243,14 @@
       "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010620204300201350"
     },
     {
+      "id": "men-dorm",
+      "osm": 524884383,
+      "name": "男寮（推定）",
+      "group": "法鼓山園區",
+      "desc": "沿法印路而上的四合院建築，是僧團男眾法師與僧伽大學學僧的住宿修行空間。（建物對應依官網描述與位置推定）",
+      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0M029514997931693860"
+    },
+    {
       "id": "bell-tower",
       "osm": 386379418,
       "name": "法華鐘樓",
@@ -288,7 +300,8 @@
       ],
       "name": "東校門",
       "group": "校門",
-      "desc": "（位置取自 OpenStreetMap，待確認）"
+      "desc": "位於北23線上、法行路與縣道交會處，車輛由此經法行路進入校園東側（綜合大樓）。位置依文理學院校園安全地圖確認。",
+      "source": "https://www.dila.edu.tw/campus1"
     },
     {
       "id": "main-gate",
@@ -298,7 +311,8 @@
       ],
       "name": "正門",
       "group": "校門",
-      "desc": "（位置取自 OpenStreetMap，待確認）"
+      "desc": "位於法大一橋南端、圖書資訊館東側，連接法鼓山園區內的道路。位置依文理學院校園安全地圖確認。",
+      "source": "https://www.dila.edu.tw/campus1"
     },
     {
       "id": "great-vow-bridge",
@@ -310,6 +324,17 @@
       "group": "文理學院",
       "desc": "連接文理學院東西兩側校園的人行橋，全長 108 公尺，呼應 108 種煩惱；姚仁喜／大元建築工場設計。",
       "source": "https://www.krisyaoartech.com/zh-tw/projects/education/Great-Vow-Pedestrian-Bridge"
+    },
+    {
+      "id": "north-gate",
+      "latlon": [
+        25.2472438,
+        121.6184297
+      ],
+      "name": "北校門",
+      "group": "校門",
+      "desc": "位於西湖里、法海路與北23線交會處，經法海路可到校園東北側。位置依文理學院校園安全地圖推定。",
+      "source": "https://www.dila.edu.tw/campus1"
     }
   ],
   "extras": [
