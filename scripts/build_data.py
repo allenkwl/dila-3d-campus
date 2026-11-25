@@ -264,8 +264,12 @@ while z < z_s - 3:
 # ---------- 特殊造型（圓塔、鐘亭等，overrides.extras） ----------
 extras = []
 for x in overrides.get('extras', []):
+    rec = {k: v for k, v in x.items() if k not in ('latlon', 'path', '_註')}
+    if 'path' in x:   # 線狀物（橋）：每點帶地面高
+        rec['path'] = [[round(to_xz(*p)[0], 2), round(elev(*p), 2), round(to_xz(*p)[1], 2)] for p in x['path']]
+        extras.append(rec)
+        continue
     cx, cz = to_xz(*x['latlon'])
-    rec = {k: v for k, v in x.items() if k not in ('latlon', '_註')}
     rec.update({'x': round(cx, 2), 'z': round(cz, 2), 'y': round(elev(*x['latlon']), 2)})
     if 'alignTo' in x:
         b = next(b for b in buildings if b['id'] == x['alignTo'])

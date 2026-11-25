@@ -19,11 +19,24 @@ cd ~/Documents/DILA/campus-3d && python3 -m http.server 8731
 | 檔案 | 內容 |
 | --- | --- |
 | `index.html`、`src/app.js`、`src/style.css` | 網頁本體（Three.js） |
-| `data/overrides.json` | **手動維護**：建物高度、屋頂型式、地標清單與說明 |
+| `data/overrides.json` | **手動維護**：建物高度、顏色、屋頂型式、特殊造型（圓塔、鐘亭、大願橋）、地標清單與簡短說明 |
+| `data/details.json` | **手動維護**：地標視窗的詳細說明、重點條列、資料來源 |
+| `data/photo_sources.json` | **手動維護**：各地標照片來源（法鼓山官網、文理學院官網、Wikimedia Commons） |
+| `data/photos/`、`data/photos.json` | 由 `scripts/fetch_photos.py` 產生的照片與出處；換成自拍照片時直接替換檔案、改 `photos.json` |
 | `data/campus.json`、`data/ortho.jpg` | 由腳本產生，不要手改 |
 | `scripts/config.json` | 場景範圍與原點 |
 | `scripts/fetch_tiles.py` | 下載地形與正射影像圖磚 |
 | `scripts/build_data.py` | 產生 `data/campus.json`、`data/ortho.jpg` |
+
+## 地標視窗
+
+點地圖上的地標標籤（或資料卡的「照片與詳細介紹」）會打開視窗：上方是照片輪播（左右鍵、滑動、縮圖切換，標示照片出處），下方是重點條列、詳細說明與資料來源。
+
+更新照片：
+
+```bash
+python3 scripts/fetch_photos.py
+```
 
 ## 更新資料
 

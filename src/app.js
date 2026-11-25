@@ -5,7 +5,8 @@ const GROUP_COLORS = { '文理學院': '#c0592b', '法鼓山園區': '#7a6a2f', 
 const WALL = new THREE.Color('#e4ddcf');
 const $ = (s) => document.querySelector(s);
 
-const data = await fetch('data/campus.json').then((r) => r.json());
+const getJSON = (u) => fetch(u).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+const [data, details, photos] = await Promise.all([getJSON('data/campus.json'), getJSON('data/details.json'), getJSON('data/photos.json')]);
 const canvas = $('#scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -238,7 +239,44 @@ for (const x of data.extras || []) {
     box.position.y = x.colH + 3.2;
     g.add(box, pyramid(x.w * 0.42 + 1.4, 6.5, x.colH + 3.9));     // 上層攢尖
     extraGroup.add(g);
+  } else if (x.type === 'bridge') {
+    extraGroup.add(makeBridge(x));
   }
+}
+
+/** 大願橋：沿路徑的弧形橋面，兩端窄中間寬、中間拱起，兩側為實牆（箱梁）。 */
+function makeBridge(x) {
+  const P = x.path;
+  const y0 = P[0][1] + 0.6, y1 = P[P.length - 1][1] + 0.6;
+  const curve = new THREE.CatmullRomCurve3(P.map(([px, , pz]) => new THREE.Vector3(px, 0, pz)));
+  const N = 60, deck = [], wallG = [];
+  const L = [], R = [], Ys = [];
+  for (let i = 0; i <= N; i++) {
+    const t = i / N, c = curve.getPointAt(t), tan = curve.getTangentAt(t);
+    const nrm = new THREE.Vector3(-tan.z, 0, tan.x).normalize();
+    const w = (x.wEnd + (x.wMid - x.wEnd) * Math.sin(Math.PI * t)) / 2;
+    const y = y0 + (y1 - y0) * t + x.arch * Math.sin(Math.PI * t);
+    L.push(c.clone().addScaledVector(nrm, w)); R.push(c.clone().addScaledVector(nrm, -w)); Ys.push(y);
+  }
+  const quad = (arr, a, b, c, d) => arr.push(...a, ...b, ...c, ...a, ...c, ...d);
+  const v = (p, y) => [p.x, y, p.z];
+  for (let i = 0; i < N; i++) {
+    const [ya, yb] = [Ys[i], Ys[i + 1]];
+    quad(deck, v(L[i], ya), v(R[i], ya), v(R[i + 1], yb), v(L[i + 1], yb));                 // 橋面
+    for (const S of [L, R]) {                                                             // 兩側牆：外、內、頂
+      quad(wallG, v(S[i], ya - 1.6), v(S[i + 1], yb - 1.6), v(S[i + 1], yb + x.wall), v(S[i], ya + x.wall));
+    }
+    quad(wallG, v(L[i], ya - 1.6), v(R[i], ya - 1.6), v(R[i + 1], yb - 1.6), v(L[i + 1], yb - 1.6)); // 底板
+  }
+  const mk = (pos, color) => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.computeVertexNormals();
+    return shadowed(new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color, side: THREE.DoubleSide })));
+  };
+  const grp = new THREE.Group();
+  grp.add(mk(deck, x.deck), mk(wallG, x.color));
+  return grp;
 }
 
 const wallMesh = meshFrom(wallPos, wallCol);
@@ -289,7 +327,8 @@ const places = data.places.map((p) => {
   el.className = 'lbl';
   el.textContent = p.name;
   el.style.setProperty('--dot', GROUP_COLORS[p.group] || '#888');
-  el.addEventListener('click', (ev) => { ev.stopPropagation(); select(p.id); });
+  // 點標籤：飛過去並打開照片＋詳細介紹視窗
+  el.addEventListener('click', (ev) => { ev.stopPropagation(); select(p.id); openModal(p.id); });
   labelsEl.append(el);
   return { ...p, el, pos: new THREE.Vector3(p.x, p.y + 2, p.z) };
 });
@@ -318,6 +357,76 @@ function showCard(group, name, desc, source) {
   const a = card.querySelector('.card-src');
   a.hidden = !source;
   if (source) a.href = source;
+  card.querySelector('.card-more').hidden = !(current && (details[current.id] || photos[current.id]?.length));
+}
+card.querySelector('.card-more').addEventListener('click', () => current && openModal(current.id));
+
+// ---------- 地標視窗 ----------
+const modal = $('#modal');
+let gal = { list: [], i: 0 };
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function showPhoto(i) {
+  const n = gal.list.length;
+  if (!n) return;
+  gal.i = (i + n) % n;
+  const ph = gal.list[gal.i];
+  const img = modal.querySelector('.gallery-main img');
+  img.src = ph.src;
+  img.alt = ph.caption || '';
+  modal.querySelector('.gallery-count').textContent = `${gal.i + 1} / ${n}`;
+  modal.querySelector('figcaption').innerHTML =
+    `${ph.caption ? esc(ph.caption) + '　' : ''}照片：<a href="${esc(ph.link)}" target="_blank" rel="noopener">${esc(ph.credit)}</a>`;
+  modal.querySelectorAll('.thumbs button').forEach((b, k) => b.classList.toggle('on', k === gal.i));
+}
+function openModal(id) {
+  const p = places.find((x) => x.id === id);
+  if (!p) return;
+  const d = details[id] || {};
+  gal = { list: photos[id] || [], i: 0 };
+  modal.querySelector('.modal-group').textContent = p.group;
+  modal.querySelector('h2').textContent = p.name;
+  const has = gal.list.length > 0;
+  modal.querySelector('.gallery').hidden = !has;
+  modal.querySelector('.no-photo').hidden = has;
+  modal.querySelectorAll('.gallery .nav').forEach((b) => { b.hidden = gal.list.length < 2; });
+  modal.querySelector('.thumbs').innerHTML = gal.list.length > 1
+    ? gal.list.map((ph, k) => `<button data-k="${k}" aria-label="第 ${k + 1} 張"><img src="${esc(ph.src)}" alt="" loading="lazy"></button>`).join('') : '';
+  modal.querySelector('.facts').innerHTML = (d.facts || []).map((f) => `<li>${esc(f)}</li>`).join('');
+  modal.querySelector('.detail').innerHTML = (d.detail || p.desc || '').split(/\n\n+/).map((t) => `<p>${esc(t)}</p>`).join('');
+  const srcs = d.sources || (p.source ? [p.source] : []);
+  modal.querySelector('.sources').innerHTML = srcs.length
+    ? '資料來源：' + srcs.map((u) => `<br><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>`).join('') : '';
+  modal.hidden = false;
+  modal.querySelector('.modal-body').scrollTop = 0;
+  showPhoto(0);
+  modal.querySelector('.modal-close').focus();
+}
+function closeModal() { modal.hidden = true; }
+modal.querySelector('.modal-close').addEventListener('click', closeModal);
+modal.querySelector('.modal-backdrop').addEventListener('click', closeModal);
+modal.querySelector('.prev').addEventListener('click', () => showPhoto(gal.i - 1));
+modal.querySelector('.next').addEventListener('click', () => showPhoto(gal.i + 1));
+modal.querySelector('.thumbs').addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-k]');
+  if (b) showPhoto(+b.dataset.k);
+});
+addEventListener('keydown', (e) => {
+  if (modal.hidden) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'ArrowLeft') showPhoto(gal.i - 1);
+  if (e.key === 'ArrowRight') showPhoto(gal.i + 1);
+});
+// 觸控左右滑換照片
+{
+  let sx = null;
+  const m = modal.querySelector('.gallery-main');
+  m.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+  m.addEventListener('touchend', (e) => {
+    if (sx === null) return;
+    const dx = e.changedTouches[0].clientX - sx;
+    if (Math.abs(dx) > 40) showPhoto(gal.i + (dx < 0 ? 1 : -1));
+    sx = null;
+  });
 }
 $('#card-close').addEventListener('click', () => select(null));
 
@@ -431,4 +540,4 @@ requestAnimationFrame(tick);
 
 const initial = new URLSearchParams(location.search).get('place');
 if (initial) select(initial);
-window.__campus = { scene, camera, controls, select, places };
+window.__campus = { scene, camera, controls, select, places, openModal };

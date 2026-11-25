@@ -20,7 +20,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 #app { display: flex; height: 100dvh; }
 #map { position: relative; flex: 1; min-width: 0; overflow: hidden; background: #cfd9df; }
 #scene { display: block; width: 100%; height: 100%; touch-action: none; }
-#labels { position: absolute; inset: 0; pointer-events: none; }
+#labels { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
 .lbl { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); white-space: nowrap;
   font-size: 12px; line-height: 1; padding: 5px 8px 5px 18px; border-radius: 999px; background: var(--chip);
   color: var(--chip-ink); box-shadow: 0 1px 4px #0003; cursor: pointer; pointer-events: auto; user-select: none; }
@@ -63,3 +63,44 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 }
 #card .card-src { display: inline-block; margin-top: 6px; font-size: 12.5px; color: var(--accent); }
 #card .card-src[hidden] { display: none; }
+
+#card .card-more { display: block; margin-top: 10px; padding: 7px 12px; border: 0; border-radius: 8px; background: var(--accent);
+  color: #fff; font-size: 13.5px; font-family: inherit; cursor: pointer; }
+#card .card-more[hidden] { display: none; }
+
+/* ---------- 地標視窗 ---------- */
+#modal[hidden] { display: none; }
+#modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; }
+.modal-backdrop { position: absolute; inset: 0; background: #000a; }
+.modal-box { position: relative; width: min(880px, 100%); max-height: 100%; display: flex; flex-direction: column;
+  background: var(--panel); color: var(--ink); border-radius: 14px; overflow: hidden; box-shadow: 0 12px 40px #0006; }
+.modal-box header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 14px 18px 10px; border-bottom: 1px solid var(--line); }
+.modal-group { font-size: 12.5px; color: var(--accent); }
+.modal-box h2 { margin: 2px 0 0; font-size: 21px; }
+.modal-close { border: 0; background: none; font-size: 28px; line-height: 1; color: var(--muted); cursor: pointer; }
+.modal-body { overflow: auto; padding: 0 0 18px; }
+.gallery { margin: 0; background: #111; }
+.gallery-main { position: relative; display: grid; place-items: center; height: min(56vh, 480px); }
+.gallery-main img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.gallery .nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 56px; border: 0; border-radius: 8px;
+  background: #0007; color: #fff; font-size: 30px; cursor: pointer; }
+.gallery .prev { left: 10px; } .gallery .next { right: 10px; }
+.gallery-count { position: absolute; right: 10px; bottom: 8px; padding: 2px 8px; border-radius: 99px; background: #0008; color: #fff; font-size: 12px; }
+.gallery figcaption { padding: 6px 14px; font-size: 12px; color: #bbb; background: #1a1a1a; }
+.gallery figcaption a { color: #ddd; }
+.thumbs { display: flex; gap: 6px; padding: 8px 12px 10px; overflow-x: auto; background: #1a1a1a; }
+.thumbs button { flex: none; padding: 0; border: 2px solid transparent; border-radius: 6px; background: none; cursor: pointer; opacity: .65; }
+.thumbs button.on { border-color: var(--accent); opacity: 1; }
+.thumbs img { display: block; width: 84px; height: 56px; object-fit: cover; border-radius: 4px; }
+.no-photo { padding: 28px; text-align: center; color: var(--muted); background: var(--bg); }
+.facts { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 18px 4px; padding: 0; list-style: none; }
+.facts li { padding: 4px 10px; border-radius: 99px; background: var(--bg); border: 1px solid var(--line); font-size: 13px; }
+.detail { padding: 6px 18px 0; }
+.detail p { margin: 10px 0; font-size: 15px; line-height: 1.85; }
+.sources { margin: 12px 18px 0; padding-top: 10px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.sources a { color: var(--accent); word-break: break-all; }
+@media (max-width: 760px) {
+  #modal { padding: 0; }
+  .modal-box { width: 100%; height: 100%; border-radius: 0; }
+  .gallery-main { height: 42vh; }
+}

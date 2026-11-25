@@ -42,10 +42,39 @@
       <h2></h2>
       <p class="card-desc"></p>
       <a class="card-src" target="_blank" rel="noopener" hidden>資料來源 ↗</a>
+      <button class="card-more" hidden>照片與詳細介紹</button>
     </div>
     <div id="list"></div>
     <footer>拖曳旋轉・右鍵或雙指平移・滾輪縮放</footer>
   </aside>
+</div>
+<div id="modal" hidden>
+  <div class="modal-backdrop"></div>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <header>
+      <div>
+        <div class="modal-group"></div>
+        <h2 id="modal-title"></h2>
+      </div>
+      <button class="modal-close" aria-label="關閉">×</button>
+    </header>
+    <div class="modal-body">
+      <figure class="gallery">
+        <div class="gallery-main">
+          <img alt="">
+          <button class="nav prev" aria-label="上一張">‹</button>
+          <button class="nav next" aria-label="下一張">›</button>
+          <div class="gallery-count"></div>
+        </div>
+        <figcaption></figcaption>
+        <div class="thumbs"></div>
+      </figure>
+      <div class="no-photo" hidden>尚無照片</div>
+      <ul class="facts"></ul>
+      <div class="detail"></div>
+      <div class="sources"></div>
+    </div>
+  </div>
 </div>
 <script type="module" src="src/app.js"></script>
 </body>

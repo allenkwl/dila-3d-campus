@@ -1,0 +1,360 @@
+{
+ "general": [
+  {
+   "src": "data/photos/general-1.jpg",
+   "w": 580,
+   "h": 387,
+   "credit": "法鼓文理學院",
+   "link": "https://www.dila.edu.tw/building1",
+   "caption": ""
+  },
+  {
+   "src": "data/photos/general-2.jpg",
+   "w": 1280,
+   "h": 795,
+   "credit": "Yu tptw／CC BY-SA 4.0（Wikimedia Commons）",
+   "link": "https://commons.wikimedia.org/wiki/File:DILA_General_Building_2024.jpg",
+   "caption": "​法鼓文理學院綜合大樓"
+  },
+  {
+   "src": "data/photos/general-3.jpg",
+   "w": 580,
+   "h": 387,
+   "credit": "法鼓文理學院",
+   "link": "https://www.dila.edu.tw/campus1",
+   "caption": ""
+  }
+ ],
+ "dorm-chanyue": [
+  {
+   "src": "data/photos/dorm-chanyue-1.jpg",
+   "w": 580,
+   "h": 387,
+   "credit": "法鼓文理學院",
+   "link": "https://www.dila.edu.tw/building1",
+   "caption": ""
+  },
+  {
+   "src": "data/photos/dorm-chanyue-2.jpg",
+   "w": 1280,
+   "h": 909,
+   "credit": "Yu tptw／CC BY-SA 4.0（Wikimedia Commons）",
+   "link": "https://commons.wikimedia.org/wiki/File:Chanyue_House_20240124.jpg",
+   "caption": "​法鼓文理學院禪悅書苑"
+  }
+ ],
+ "gym": [
+  {
+   "src": "data/photos/gym-1.jpg",
+   "w": 580,
+   "h": 387,
+   "credit": "法鼓文理學院",
+   "link": "https://www.dila.edu.tw/building1",
+   "caption": ""
+  }
+ ],
+ "library": [
+  {
+   "src": "data/photos/library-1.jpg",
+   "w": 580,
+   "h": 387,
+   "credit": "法鼓文理學院",
+   "link": "https://www.dila.edu.tw/building1",
+   "caption": ""
+  },
+  {
+   "src": "data/photos/library-2.jpg",
+   "w": 640,
+   "h": 480,
+   "credit": "Orinch／CC BY-SA 3.0（Wikimedia Commons）",
+   "link": "https://commons.wikimedia.org/wiki/File:DDBC_Library_1F_interior_20091005.jpg",
+   "caption": "Interior of the 1st floor of Dharma Drum Buddhist College Li"
+  }
+ ],
+ "dorm-fayin": [
+  {
+   "src": "data/photos/dorm-fayin-1.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010629294315628197",
+   "caption": "其它大樓"
+  }
+ ],
+ "bldg1": [
+  {
+   "src": "data/photos/bldg1-1.jpg",
+   "w": 693,
+   "h": 460,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L009783864713624896",
+   "caption": "第一大樓"
+  },
+  {
+   "src": "data/photos/bldg1-2.jpg",
+   "w": 942,
+   "h": 314,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L009783864713624896",
+   "caption": "第一大樓"
+  },
+  {
+   "src": "data/photos/bldg1-3.jpg",
+   "w": 693,
+   "h": 462,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L009783864713624896",
+   "caption": "第一大樓"
+  },
+  {
+   "src": "data/photos/bldg1-4.jpg",
+   "w": 1067,
+   "h": 701,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L009783864713624896",
+   "caption": "第一大樓"
+  },
+  {
+   "src": "data/photos/bldg1-5.jpg",
+   "w": 1280,
+   "h": 960,
+   "credit": "玄史生／CC0（Wikimedia Commons）",
+   "link": "https://commons.wikimedia.org/wiki/File:Grand_Buddha_Hall_of_Dharma_Drum_Mountain_20110206.JPG",
+   "caption": "​法鼓山大殿，時逢農曆大年初四，所以內外皆懸紅燈籠。"
+  },
+  {
+   "src": "data/photos/bldg1-6.jpg",
+   "w": 1200,
+   "h": 800,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L009838744683044092",
+   "caption": "第一大樓"
+  }
+ ],
+ "bldg2": [
+  {
+   "src": "data/photos/bldg2-1.jpg",
+   "w": 606,
+   "h": 454,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010465502472181745",
+   "caption": "第二大樓"
+  },
+  {
+   "src": "data/photos/bldg2-2.jpg",
+   "w": 606,
+   "h": 404,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010465502472181745",
+   "caption": "第二大樓"
+  },
+  {
+   "src": "data/photos/bldg2-3.jpg",
+   "w": 606,
+   "h": 457,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010465502472181745",
+   "caption": "第二大樓"
+  },
+  {
+   "src": "data/photos/bldg2-4.jpg",
+   "w": 693,
+   "h": 194,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010465502472181745",
+   "caption": "第二大樓"
+  },
+  {
+   "src": "data/photos/bldg2-5.jpg",
+   "w": 960,
+   "h": 638,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010537089382446672",
+   "caption": "第二大樓"
+  }
+ ],
+ "bldg3": [
+  {
+   "src": "data/photos/bldg3-1.jpg",
+   "w": 1280,
+   "h": 833,
+   "credit": "Yu tptw／CC BY-SA 4.0（Wikimedia Commons）",
+   "link": "https://commons.wikimedia.org/wiki/File:DDM_Headquarter_Building_III_20240124.jpg",
+   "caption": "​法鼓山世界佛教教育園區第三大樓（教育行政大樓）由中華佛研所、法鼓山伽僧大學、法鼓文理學院共同使用"
+  },
+  {
+   "src": "data/photos/bldg3-2.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010590721761923000",
+   "caption": "第三大樓"
+  },
+  {
+   "src": "data/photos/bldg3-3.jpg",
+   "w": 960,
+   "h": 639,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010590721761923000",
+   "caption": "第三大樓"
+  },
+  {
+   "src": "data/photos/bldg3-4.jpg",
+   "w": 960,
+   "h": 639,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010590721761923000",
+   "caption": "第三大樓"
+  },
+  {
+   "src": "data/photos/bldg3-5.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010590721761923000",
+   "caption": "第三大樓"
+  }
+ ],
+ "conference": [
+  {
+   "src": "data/photos/conference-1.jpg",
+   "w": 960,
+   "h": 639,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010590721761923000",
+   "caption": "第三大樓"
+  }
+ ],
+ "chan-hall": [
+  {
+   "src": "data/photos/chan-hall-1.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010620204300201350",
+   "caption": "其他大樓"
+  },
+  {
+   "src": "data/photos/chan-hall-2.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010620204300201350",
+   "caption": "其他大樓"
+  },
+  {
+   "src": "data/photos/chan-hall-3.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010620204300201350",
+   "caption": "其他大樓"
+  },
+  {
+   "src": "data/photos/chan-hall-4.jpg",
+   "w": 960,
+   "h": 638,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010620204300201350",
+   "caption": "其他大樓"
+  }
+ ],
+ "bell-tower": [
+  {
+   "src": "data/photos/bell-tower-1.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010699535857418078",
+   "caption": "法華鐘樓"
+  },
+  {
+   "src": "data/photos/bell-tower-2.jpg",
+   "w": 1280,
+   "h": 960,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010699535857418078",
+   "caption": "法華鐘樓"
+  },
+  {
+   "src": "data/photos/bell-tower-3.jpg",
+   "w": 1280,
+   "h": 960,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010699535857418078",
+   "caption": "法華鐘樓"
+  },
+  {
+   "src": "data/photos/bell-tower-4.jpg",
+   "w": 1280,
+   "h": 960,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010699535857418078",
+   "caption": "法華鐘樓"
+  }
+ ],
+ "sanmen": [
+  {
+   "src": "data/photos/sanmen-1.jpg",
+   "w": 960,
+   "h": 641,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010705859949206028",
+   "caption": "三門"
+  },
+  {
+   "src": "data/photos/sanmen-2.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010705859949206028",
+   "caption": "三門"
+  },
+  {
+   "src": "data/photos/sanmen-3.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010705859949206028",
+   "caption": "三門"
+  }
+ ],
+ "fahua-shuyuan": [
+  {
+   "src": "data/photos/fahua-shuyuan-1.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010638662779664324",
+   "caption": "法華書苑"
+  }
+ ],
+ "parking": [
+  {
+   "src": "data/photos/parking-1.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010687763484039254",
+   "caption": "室外佛像"
+  }
+ ],
+ "great-vow-bridge": [
+  {
+   "src": "data/photos/great-vow-bridge-1.jpg",
+   "w": 1280,
+   "h": 853,
+   "credit": "新北市政府環保局／Attribution（Wikimedia Commons）",
+   "link": "https://commons.wikimedia.org/wiki/File:Dharma_Drum_Institute_of_Liberal_Arts_20230329.jpg",
+   "caption": "​新北市金山區法鼓山世界佛教教育園區內的法鼓文理學院。圖的右方是大願橋，跨越園區內的滯洪池。"
+  },
+  {
+   "src": "data/photos/great-vow-bridge-2.jpg",
+   "w": 1280,
+   "h": 720,
+   "credit": "Yu tptw／CC BY-SA 4.0（Wikimedia Commons）",
+   "link": "https://commons.wikimedia.org/wiki/File:DILA_campus_2024.jpg",
+   "caption": "​法鼓文理學院校園"
+  }
+ ]
+}
