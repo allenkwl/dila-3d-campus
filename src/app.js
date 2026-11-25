@@ -33,7 +33,8 @@ controls.maxDistance = 1900;
 controls.screenSpacePanning = false;
 
 // ---------- 光線 ----------
-scene.add(new THREE.HemisphereLight('#eef4ff', '#5d5a45', 1.4));
+const hemi = new THREE.HemisphereLight('#eef4ff', '#5d5a45', 1.4);
+scene.add(hemi);
 const sun = new THREE.DirectionalLight('#fff3df', 2.2);
 sun.position.set(-600, 900, 500);
 sun.castShadow = true;
@@ -631,12 +632,159 @@ $('#btn-panel').addEventListener('click', () => { $('#app').classList.toggle('pa
 $('#btn-fs').addEventListener('click', () => {
   if (document.fullscreenElement) document.exitFullscreen(); else $('#app').requestFullscreen?.();
 });
+// ---------- 畫風 ----------
 const outerPhotoMat = outerMesh?.material;
-const outerPlainMat = new THREE.MeshLambertMaterial({ color: '#6f8a4f', polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2 });
-$('#opt-photo').addEventListener('change', (e) => {
-  terrain.material = e.target.checked ? photoMat : plainMat;
-  if (outerMesh) outerMesh.material = e.target.checked ? outerPhotoMat : outerPlainMat;
-});
+const OFFSET = { polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2 };
+const outerPlainMat = new THREE.MeshLambertMaterial({ vertexColors: true, ...OFFSET });
+if (outerMesh) outerMesh.geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(outerMesh.geometry.attributes.position.count * 3), 3));
+
+// 道路、溪流、水池（插畫風格才顯示；寫實風格由空拍圖呈現）
+function ribbon(pts, w, lift) {
+  const out = [];
+  const dense = [];
+  for (let i = 0; i < pts.length - 1; i++) {        // 每 4 公尺取一點，貼著地形走
+    const [x1, z1] = pts[i], [x2, z2] = pts[i + 1], L = Math.hypot(x2 - x1, z2 - z1), n = Math.max(1, Math.ceil(L / 4));
+    for (let k = 0; k < n; k++) dense.push([x1 + (x2 - x1) * k / n, z1 + (z2 - z1) * k / n]);
+  }
+  dense.push(pts[pts.length - 1]);
+  for (let i = 0; i < dense.length - 1; i++) {
+    const [x1, z1] = dense[i], [x2, z2] = dense[i + 1], L = Math.hypot(x2 - x1, z2 - z1) || 1;
+    const nx = -(z2 - z1) / L * w / 2, nz = (x2 - x1) / L * w / 2;
+    const y1 = groundY(x1, z1) + lift, y2 = groundY(x2, z2) + lift;
+    out.push(x1 + nx, y1, z1 + nz, x1 - nx, y1, z1 - nz, x2 - nx, y2, z2 - nz, x1 + nx, y1, z1 + nz, x2 - nx, y2, z2 - nz, x2 + nx, y2, z2 + nz);
+  }
+  return out;
+}
+function flatMesh(pos, color) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+  m.receiveShadow = true;
+  m.visible = false;
+  scene.add(m);
+  return m;
+}
+const roadMesh = flatMesh((data.roads || []).flatMap((r) => ribbon(r.pts, r.w, 0.35)), '#d9d2c3');
+const roadEdge = flatMesh((data.roads || []).filter((r) => r.w >= 4).flatMap((r) => ribbon(r.pts, r.w + 1.6, 0.25)), '#b9b09d');
+const waterPos = [];
+for (const poly of data.waters || []) {
+  const ring = poly[0][0] === poly[poly.length - 1][0] && poly[0][1] === poly[poly.length - 1][1] ? poly.slice(0, -1) : poly;
+  const y = Math.min(...ring.map(([x, z]) => groundY(x, z))) + 0.4;
+  for (const [i, j, k] of THREE.ShapeUtils.triangulateShape(ring.map(([x, z]) => new THREE.Vector2(x, z)), []))
+    waterPos.push(ring[i][0], y, ring[i][1], ring[j][0], y, ring[j][1], ring[k][0], y, ring[k][1]);
+}
+for (const st of data.streams || []) waterPos.push(...ribbon(st.pts, st.w, 0.3));
+const waterMesh = flatMesh(waterPos, '#7fb0b4');
+
+// 地面著色：依坡度與雜訊上色（插畫風格）
+// pal = [空地, 坡地, 林地, 海]；mask 為每個格點的 '0' 空地 / '1' 林地 / '2' 海
+function paintGround(mesh, pal, mask) {
+  if (!mesh) return;
+  const g = mesh.geometry, n = g.attributes.normal, p = g.attributes.position, c = g.attributes.color;
+  const [a, b, f, w] = pal.map((x) => new THREE.Color(x)), t = new THREE.Color();
+  for (let i = 0; i < p.count; i++) {
+    const slope = 1 - n.getY(i);
+    const noise = (Math.sin(p.getX(i) * 0.05) * Math.cos(p.getZ(i) * 0.043) + 1) / 2;
+    const m = mask ? mask[i] : '0';
+    if (m === '2') t.copy(w);
+    else if (m === '1') t.copy(f).lerp(b, noise * 0.25);
+    else t.copy(a).lerp(b, Math.min(1, slope * 2.2 + noise * 0.35));
+    c.setXYZ(i, t.r, t.g, t.b);
+  }
+  c.needsUpdate = true;
+}
+
+// 建物色彩：保留原色，依風格調整飽和度與亮度
+const colorMeshes = [wallMesh, roofMesh, ...facadeMeshes];
+for (const m of colorMeshes) m.userData.baseColors = m.geometry.attributes.color.array.slice();
+function tintBuildings(sat, light) {
+  const t = new THREE.Color(), hsl = {};
+  for (const m of colorMeshes) {
+    const src = m.userData.baseColors, dst = m.geometry.attributes.color.array;
+    for (let i = 0; i < src.length; i += 3) {
+      t.setRGB(src[i], src[i + 1], src[i + 2]).getHSL(hsl);
+      t.setHSL(hsl.h, Math.min(1, hsl.s * sat), Math.min(1, hsl.l * light));
+      dst[i] = t.r; dst[i + 1] = t.g; dst[i + 2] = t.b;
+    }
+    m.geometry.attributes.color.needsUpdate = true;
+  }
+}
+const lambertOf = new Map(colorMeshes.map((m) => [m, m.material]));
+const toonGrad = (() => {
+  const t = new THREE.DataTexture(new Uint8Array([90, 170, 255]), 3, 1, THREE.RedFormat);
+  t.minFilter = t.magFilter = THREE.NearestFilter; t.needsUpdate = true; return t;
+})();
+const toonOf = new Map(colorMeshes.map((m) => [m, new THREE.MeshToonMaterial({ map: m.material.map || null, vertexColors: true, side: THREE.DoubleSide, gradientMap: toonGrad })]));
+
+// 樹：風格各自的色盤與外形
+const treeBase = data.trees.map(([, , , , r, g, b]) => [r / 255, g / 255, b / 255]);
+const treeFacet = treeMesh.geometry, treeRound = new THREE.IcosahedronGeometry(1, 2);
+const treeLambert = treeMesh.material, treeToon = new THREE.MeshToonMaterial({ gradientMap: toonGrad });
+let treeScaleNow = 1;
+function setTreeScale(k) {
+  if (k === treeScaleNow) return;
+  treeScaleNow = k;
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler();
+  data.trees.forEach(([x, y, z, s], i) => {
+    e.set(0, (i * 2.399) % 6.283, 0);
+    q.setFromEuler(e);
+    m.compose(new THREE.Vector3(x, y + 2.6 * s * k, z), q, new THREE.Vector3(3.6 * s * k, 3.4 * s * k, 3.6 * s * k));
+    treeMesh.setMatrixAt(i, m);
+  });
+  treeMesh.instanceMatrix.needsUpdate = true;
+}
+function paintTrees(pal) {
+  const c = new THREE.Color();
+  treeBase.forEach(([r, g, b], i) => {
+    if (!pal) c.setRGB(r, g, b, THREE.SRGBColorSpace).offsetHSL(0, 0.05, 0.05);
+    else c.set(pal[i % 7 < 3 ? 0 : i % 7 < 6 ? 1 : 2]).offsetHSL(0, 0, ((i * 7919) % 100) / 1000 - 0.05);
+    treeMesh.setColorAt(i, c);
+  });
+  treeMesh.instanceColor.needsUpdate = true;
+}
+
+const STYLES = {
+  real:   { name: '寫實', photo: true, sky: '#cdd9e0', fog: [2200, 5200], hemi: 1.4, sun: 2.2, trees: null, round: false, sat: 1, light: 1, toon: false },
+  pastel: { name: '清雅', photo: false, ground: ['#b9cf98', '#8fb174', '#4f7a45', '#9cc3c4'], treeScale: 1.45, sky: '#e9ede4', fog: [1800, 4600], hemi: 1.9, sun: 1.6,
+            trees: ['#4f7d45', '#5f8f4f', '#79a35e'], round: true, sat: 0.85, light: 1.06, toon: false },
+  ink:    { name: '水墨', photo: true, treeScale: 1.25, sky: '#efe9dc', fog: [500, 2600], hemi: 1.6, sun: 1.5,
+            trees: ['#6d7a55', '#7f8a62', '#596648'], round: true, sat: 0.55, light: 1.05, toon: false },
+  fairy:  { name: '童話', photo: false, ground: ['#b8ea86', '#8fd170', '#47a352', '#6fd0ef'], treeScale: 1.45, sky: '#bfe6ff', fog: [2000, 5000], hemi: 2.0, sun: 2.0,
+            trees: ['#3faa55', '#62c45a', '#2f8f63'], round: true, sat: 1.45, light: 1.08, toon: true },
+};
+let styleKey = 'real';
+function applyStyle(key) {
+  const st = STYLES[key] || STYLES.real;
+  styleKey = STYLES[key] ? key : 'real';
+  terrain.material = st.photo ? photoMat : plainMat;
+  if (outerMesh) outerMesh.material = st.photo ? outerPhotoMat : outerPlainMat;
+  if (!st.photo) { paintGround(terrain, st.ground, data.grid.forest); paintGround(outerMesh, st.ground, data.outer?.forest); }
+  setTreeScale(st.treeScale || 1);
+  roadMesh.visible = roadEdge.visible = waterMesh.visible = !st.photo;
+  roadMesh.material.color.set(key === 'fairy' ? '#f3e2b8' : '#d9d2c3');
+  waterMesh.material.color.set(key === 'fairy' ? '#5cc3e6' : '#7fb0b4');
+  scene.background = new THREE.Color(st.sky);
+  scene.fog.color.set(st.sky); scene.fog.near = st.fog[0]; scene.fog.far = st.fog[1];
+  hemi.intensity = st.hemi; sun.intensity = st.sun;
+  treeMesh.geometry = st.round ? treeRound : treeFacet;
+  treeMesh.material = st.toon ? treeToon : treeLambert;
+  paintTrees(st.trees);
+  tintBuildings(st.sat, st.light);
+  for (const m of colorMeshes) m.material = st.toon ? toonOf.get(m) : lambertOf.get(m);
+  $('#app').dataset.style = styleKey;
+  document.querySelectorAll('.style-tools button').forEach((b) => b.classList.toggle('on', b.dataset.style === styleKey));
+  try { localStorage.setItem('campus3d-style', styleKey); } catch {}
+  const url = new URL(location.href);
+  if (styleKey === 'real') url.searchParams.delete('style'); else url.searchParams.set('style', styleKey);
+  history.replaceState(null, '', url);
+}
+document.querySelectorAll('.style-tools button').forEach((b) => b.addEventListener('click', () => applyStyle(b.dataset.style)));
+{
+  let saved = null;
+  try { saved = localStorage.getItem('campus3d-style'); } catch {}
+  applyStyle(new URLSearchParams(location.search).get('style') || saved || 'real');
+}
 $('#opt-trees').addEventListener('change', (e) => { treeMesh.visible = e.target.checked; });
 $('#opt-labels').addEventListener('change', (e) => { labelsEl.style.display = e.target.checked ? '' : 'none'; });
 

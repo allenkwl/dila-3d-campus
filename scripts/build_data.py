@@ -86,6 +86,17 @@ os.makedirs(os.path.join(ROOT, 'data'), exist_ok=True)
 ortho_img.save(os.path.join(ROOT, 'data/ortho.jpg'), quality=82)
 
 
+def is_forest(rgb):
+    # 地面著色用的林地判定（比撒樹寬鬆：偏綠、不太亮即可）
+    r, g, b = rgb
+    return g >= r - 3 and g > b and (0.3 * r + 0.59 * g + 0.11 * b) < 125
+
+
+# 每個地形格點是否為樹林（插畫風格的地面著色用），字串 '0'/'1'
+forest = ''.join('1' if is_forest(ortho.sample(LAT0 - (z_n + r * GRID) / MZ, LON0 + (x_w + c * GRID) / MX)) else '0'
+                 for r in range(nz) for c in range(nx))
+
+
 def point_in_poly(x, z, poly):
     inside = False
     for i in range(len(poly)):
@@ -360,6 +371,13 @@ for y in range(0, o_ortho.size[1]):
             if r < 60 and g < 80:
                 op[x, y] = (40, 104, 122)
 o_ortho.save(os.path.join(ROOT, 'data/ortho_outer.jpg'), quality=78)
+oforest = []
+for r in range(onz):
+    for c in range(onx):
+        u, v = oo.uv(LAT0 - (oz_n + r * OSTEP) / MZ, LON0 + (ox_w + c * OSTEP) / MX)
+        ok = 0 <= u < o_ortho.size[0] and 0 <= v < o_ortho.size[1]
+        oforest.append('1' if ok and is_forest(op[int(u), int(v)]) else ('2' if ok and sea[int(u), int(v)] else '0'))
+oforest = ''.join(oforest)
 
 # 外圍樹木：內圈外 500 公尺帶狀範圍，間距較大
 TS2 = 9.0
@@ -383,6 +401,35 @@ while z < oz_s:
         x += TS2
     z += TS2
 
+# ---------- 道路與水體（插畫風格用；寫實風格由空拍圖呈現） ----------
+ROAD_W = {'tertiary': 7, 'unclassified': 5.5, 'residential': 5, 'service': 4, 'footway': 2, 'path': 1.6,
+          'steps': 2, 'track': 3}
+roads, waters, streams = [], [], []
+inside_inner = lambda x, z: x_w + 2 < x < x_e - 2 and z_n + 2 < z < z_s - 2
+for e in osm['elements']:
+    t = e.get('tags', {})
+    if e['type'] != 'way' or 'geometry' not in e:
+        continue
+    pts = [to_xz(p['lat'], p['lon']) for p in e['geometry']]
+    if t.get('highway') in ROAD_W:
+        seg = []
+        for x, z in pts:          # 只保留內圈範圍，切成連續段
+            if inside_inner(x, z):
+                seg.append([round(x, 1), round(z, 1)])
+            elif len(seg) > 1:
+                roads.append({'w': ROAD_W[t['highway']], 'pts': seg}); seg = []
+            else:
+                seg = []
+        if len(seg) > 1:
+            roads.append({'w': ROAD_W[t['highway']], 'pts': seg})
+    elif t.get('natural') == 'water' or t.get('landuse') == 'basin':
+        if all(inside_inner(x, z) for x, z in pts):
+            waters.append([[round(x, 1), round(z, 1)] for x, z in pts])
+    elif t.get('waterway') in ('stream', 'river', 'canal'):
+        seg = [[round(x, 1), round(z, 1)] for x, z in pts if inside_inner(x, z)]
+        if len(seg) > 1:
+            streams.append({'w': 4 if t['waterway'] == 'river' else 2.2, 'pts': seg})
+
 # ---------- 地標 ----------
 places = []
 for p in overrides['places']:
@@ -399,12 +446,13 @@ for p in overrides['places']:
 
 out = {
     'origin': cfg['origin'],
-    'grid': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'step': GRID, 'nx': nx, 'nz': nz, 'h': grid},
+    'grid': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'step': GRID, 'nx': nx, 'nz': nz, 'h': grid, 'forest': forest},
     'ortho': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'x1': round(x_e, 2), 'z1': round(z_s, 2)},
     'outer': {'x0': round(ox_w, 2), 'z0': round(oz_n, 2), 'x1': round(ox_e, 2), 'z1': round(oz_s, 2),
-              'step': OSTEP, 'nx': onx, 'nz': onz, 'h': ogrid},
+              'step': OSTEP, 'nx': onx, 'nz': onz, 'h': ogrid, 'forest': oforest},
     'buildings': buildings,
     'extras': extras,
+    'roads': roads, 'waters': waters, 'streams': streams,
     'trees': trees,
     'places': places,
 }

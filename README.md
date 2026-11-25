@@ -19,7 +19,7 @@ cd ~/Documents/DILA/campus-3d && python3 -m http.server 8731
 | 檔案 | 內容 |
 | --- | --- |
 | `index.html`、`src/app.js`、`src/style.css` | 網頁本體（Three.js） |
-| `data/overrides.json` | **手動維護**：建物高度、顏色、屋頂型式、特殊造型（圓塔、鐘亭、大願橋）、地標清單與簡短說明 |
+| `data/overrides.json` | **手動維護**：建物高度、顏色、屋頂型式、立面貼圖（facade）、分棟樓層（floors）、特殊造型（圓塔、鐘亭、大願橋）、地標清單與簡短說明 |
 | `data/details.json` | **手動維護**：地標視窗的詳細說明、重點條列、資料來源 |
 | `data/photo_sources.json` | **手動維護**：各地標照片來源（法鼓山官網、文理學院官網、Wikimedia Commons） |
 | `data/photos/`、`data/photos.json` | 由 `scripts/fetch_photos.py` 產生的照片與出處；換成自拍照片時直接替換檔案、改 `photos.json` |
@@ -27,6 +27,17 @@ cd ~/Documents/DILA/campus-3d && python3 -m http.server 8731
 | `scripts/config.json` | 場景範圍與原點 |
 | `scripts/fetch_tiles.py` | 下載地形與正射影像圖磚 |
 | `scripts/build_data.py` | 產生 `data/campus.json`、`data/ortho.jpg` |
+
+## 畫風
+
+左上角可切換四種畫風（網址參數 `?style=` 也可指定，並記住上次選擇）：
+
+| 畫風 | 參數 | 說明 |
+| --- | --- | --- |
+| 寫實 | `real` | 空拍影像鋪在地形上 |
+| 清雅 | `pastel` | 柔和插畫：依空拍判定林地／空地著色，OSM 道路與水體另行繪製 |
+| 水墨 | `ink` | 宣紙色調、紙紋與四周雲霧，紙卷樣式標籤 |
+| 童話 | `fairy` | 鮮亮色彩、卡通光影（toon shading） |
 
 ## 地標視窗
 
