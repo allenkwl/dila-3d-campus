@@ -2,6 +2,8 @@
 
 法鼓文理學院與法鼓山世界佛教教育園區的互動 3D 導覽，可旋轉、縮放、點選地標，網址帶 `?place=<地標 id>` 可直接開到該地標。
 
+線上版：https://allenkwl.github.io/dila-3d-campus/
+
 ## 執行
 
 需要用本機伺服器開（直接開 index.html 讀不到資料檔）：
