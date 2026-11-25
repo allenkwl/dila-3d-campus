@@ -235,9 +235,26 @@ for e in osm['elements']:
         'base_': ov.get('base'),      # 基座（下段牆面）顏色
         'baseH': ov.get('baseH', 0),
         'colonnade': ov.get('colonnade'),   # 主體上段柱廊顏色（如大殿的白色列柱）
+        'facade': None if context else ov.get('facade'),   # 立面貼圖種類：ribbon / fins / gridwood / brick / gym
+        'floorH': ov.get('floorH', 3.6),
+        'roofStyle': ov.get('roofStyle'),   # green：植栽屋頂
         'roofType': roof_type,
     }
-    if roof_type != 'flat':
+    if roof_type == 'blocks':
+        # 分棟量體：輪廓拆成矩形，每棟依自己的地面高度與樓層數立起來（如禪悅書苑七棟錯落）
+        floors = ov.get('floors', [])
+        blocks = []
+        for k, r in enumerate(decompose(poly)):
+            ca, sa = math.cos(r['ang']), math.sin(r['ang'])
+            corners = [(r['cx'] + u * ca - v * sa, r['cz'] + u * sa + v * ca)
+                       for u, v in ((-r['w'] / 2, -r['d'] / 2), (r['w'] / 2, -r['d'] / 2), (r['w'] / 2, r['d'] / 2), (-r['w'] / 2, r['d'] / 2))]
+            ys = [elev(LAT0 - z / MZ, LON0 + x / MX) for x, z in corners]
+            fl = floors[k] if k < len(floors) else (floors[-1] if floors else round(h / rec['floorH']))
+            r.update({'base': round(min(ys) - 1.5, 2), 'ground': round(max(ys), 2), 'floors': fl,
+                      'top': round(max(ys) + fl * rec['floorH'], 2)})
+            blocks.append(r)
+        rec['blocks'] = blocks
+    elif roof_type != 'flat':
         rects = decompose(poly)
         if rects:
             main = max(rects, key=lambda r: r['w'] * r['d'])

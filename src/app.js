@@ -3,9 +3,13 @@ import { MapControls } from 'three/addons/controls/MapControls.js';
 
 const GROUP_COLORS = { '文理學院': '#c0592b', '法鼓山園區': '#7a6a2f', '校門': '#3f6f8f' };
 const WALL = new THREE.Color('#e4ddcf');
+const GREEN_ROOF = new THREE.Color('#7f9b5c');
 const $ = (s) => document.querySelector(s);
 
-const getJSON = (u) => fetch(u).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+// 版本號取自 index.html 的 app.js?v=…，資料檔一起帶上，避免瀏覽器用到舊快取
+const V = new URL(import.meta.url).searchParams.get('v') || '';
+const withV = (u) => (V ? `${u}?v=${V}` : u);
+const getJSON = (u) => fetch(withV(u)).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
 const [data, details, photos] = await Promise.all([getJSON('data/campus.json'), getJSON('data/details.json'), getJSON('data/photos.json')]);
 const canvas = $('#scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -73,7 +77,7 @@ const terrainGeo = (() => {
   g.computeVertexNormals();
   return g;
 })();
-const orthoTex = await new THREE.TextureLoader().loadAsync('data/ortho.jpg');
+const orthoTex = await new THREE.TextureLoader().loadAsync(withV('data/ortho.jpg'));
 orthoTex.colorSpace = THREE.SRGBColorSpace;
 orthoTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 const photoMat = new THREE.MeshLambertMaterial({ map: orthoTex });
@@ -106,7 +110,7 @@ const outerMesh = await (async () => {
   g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
   g.setIndex(idx);
   g.computeVertexNormals();
-  const tex = await new THREE.TextureLoader().loadAsync('data/ortho_outer.jpg');
+  const tex = await new THREE.TextureLoader().loadAsync(withV('data/ortho_outer.jpg'));
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
   // polygonOffset 把外圈稍微往後推，避免和內圈交界處閃爍
@@ -117,6 +121,60 @@ const outerMesh = await (async () => {
 })();
 
 // ---------- 建物 ----------
+// ---------- 立面貼圖（程式產生；一格 = 寬 4 公尺 × 一層樓） ----------
+const FACADE_W = 4;
+function facadeTexture(kind) {
+  const S = 256, cv = document.createElement('canvas');
+  cv.width = cv.height = S;
+  const g = cv.getContext('2d');
+  const rect = (c, x, y, w, h) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+  rect('#ffffff', 0, 0, S, S);
+  const GLASS = '#4b545b', DARK = '#3a4146';
+  if (kind === 'ribbon') {            // 清水模＋水平帶狀窗（綜合大樓）
+    rect('#f3f3f1', 0, 0, S, 34);                 // 樓板
+    rect(GLASS, 0, 70, S, 130);                   // 帶狀窗
+    for (let x = 0; x < S; x += 64) rect('#d9dcdc', x, 70, 5, 130);
+    rect('#c9c9c6', 0, 200, S, 6);
+  } else if (kind === 'fins') {       // 直向格柵
+    rect(DARK, 0, 40, S, 216);
+    for (let x = 4; x < S; x += 32) rect('#f1f1ee', x, 40, 12, 216);
+    rect('#f3f3f1', 0, 0, S, 40);
+  } else if (kind === 'gridwood') {   // 白牆＋窗格＋木欄杆（禪悅書苑）
+    rect(GLASS, 60, 40, 136, 170);
+    rect('#8d4b32', 60, 150, 136, 40);            // 木質欄杆
+    for (let x = 64; x < 196; x += 14) rect('#a96244', x, 150, 6, 40);
+    rect('#e4e2dc', 18, 20, 14, 236); rect('#e4e2dc', 224, 20, 14, 236);  // 直向鰭片
+  } else if (kind === 'brick') {      // 磚牆＋方窗（園區）
+    for (let y = 0; y < S; y += 16) rect('#ececec', 0, y, S, 2);
+    for (const x of [36, 150]) { rect('#f6f6f4', x - 6, 66, 82, 128); rect(DARK, x, 72, 70, 116); rect('#7d8388', x, 126, 70, 4); }
+  } else if (kind === 'gym') {        // 上段清水模實牆、下段玻璃（揚生館）
+    for (let x = 0; x < S; x += 64) rect('#e9e9e6', x, 0, 3, 200);
+    rect('#e9e9e6', 0, 100, S, 3);
+    rect(GLASS, 0, 206, S, 50);                   // 一樓玻璃帶
+    for (let x = 0; x < S; x += 32) rect('#cfd3d4', x, 206, 3, 50);
+  }
+  const t = new THREE.CanvasTexture(cv);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return t;
+}
+const facadeBuckets = new Map();   // kind → {pos, col, uv, owner}
+const bucket = (kind) => {
+  if (!facadeBuckets.has(kind)) facadeBuckets.set(kind, { pos: [], col: [], uv: [], owner: [] });
+  return facadeBuckets.get(kind);
+};
+/** 立面四邊形：a→b 為牆底邊，y0..y1 高度，u0 為沿牆起點距離，vBase 為樓層起算高度 */
+function facadeQuad(kind, id, [x1, z1], [x2, z2], y0, y1, u0, vBase, floorH, c0, c1) {
+  const B = bucket(kind), L = Math.hypot(x2 - x1, z2 - z1);
+  const ua = u0 / FACADE_W, ub = (u0 + L) / FACADE_W, va = (y0 - vBase) / floorH, vb = (y1 - vBase) / floorH;
+  const P = [[x1, y0, z1, ua, va, c0], [x2, y0, z2, ub, va, c0], [x2, y1, z2, ub, vb, c1],
+             [x1, y0, z1, ua, va, c0], [x2, y1, z2, ub, vb, c1], [x1, y1, z1, ua, vb, c1]];
+  for (const [x, y, z, u, v, c] of P) { B.pos.push(x, y, z); B.uv.push(u, v); B.col.push(c.r, c.g, c.b); }
+  B.owner.push(id, id);
+  return L;
+}
+
 const buildings = data.buildings;
 const placeByOsm = new Map(data.places.filter((p) => p.osm).map((p) => [p.osm, p]));
 const wallPos = [], wallCol = [], roofPos = [], roofCol = [], wallOwner = [], roofOwner = [];
@@ -146,19 +204,25 @@ buildings.forEach((b, id) => {
   const baseColor = b.base_ ? new THREE.Color(b.base_).multiplyScalar(tint) : wallColor;
   const baseTop = b.base_ ? Math.min(wallTop, b.top - b.height + b.baseH) : b.base;
   const bands = [[b.base, baseTop, baseColor.clone().multiplyScalar(0.72), baseColor], [baseTop, wallTop, wallColor, wallColor]];
+  if (b.blocks) { addBlocks(b, id, roofColor, wallColor); return; }
+  const g0 = b.top - b.height;      // 樓層起算高度（坡地上取較高的一側）
+  let run = 0;
   for (let i = 0; i < n; i++) {
     const [x1, z1] = poly[i], [x2, z2] = poly[(i + 1) % n];
+    let L = Math.hypot(x2 - x1, z2 - z1);
     for (const [y0, y1, c0, c1] of bands) {
       if (y1 - y0 < 0.05) continue;
+      if (b.facade) { facadeQuad(b.facade, id, [x1, z1], [x2, z2], y0, y1, run, g0, b.floorH, c0, c1); continue; }
       const a = [x1, y0, z1], bb = [x2, y0, z2], cc = [x2, y1, z2], d = [x1, y1, z1];
       for (const [p, col] of [[a, c0], [bb, c0], [cc, c1], [a, c0], [cc, c1], [d, c1]]) {
         wallPos.push(...p); wallCol.push(col.r, col.g, col.b);
       }
       wallOwner.push(id, id);
     }
+    run += L;
   }
   // 平頂（斜屋頂建物也鋪一層，補住拆矩形時漏掉的碎角）
-  const flatColor = b.parts ? wallColor.clone().multiplyScalar(0.8) : roofColor;
+  const flatColor = b.parts ? wallColor.clone().multiplyScalar(0.8) : b.roofStyle === 'green' ? GREEN_ROOF : roofColor;
   const tris = THREE.ShapeUtils.triangulateShape(poly.map(([x, z]) => new THREE.Vector2(x, z)), []);
   for (const [i, j, k] of tris) pushTri(roofPos, roofCol, roofOwner, id, flatColor,
     [poly[i][0], b.top, poly[i][1]], [poly[j][0], b.top, poly[j][1]], [poly[k][0], b.top, poly[k][1]]);
@@ -178,6 +242,32 @@ buildings.forEach((b, id) => {
   }
   for (const p of b.parts) addHipRoof(b, p, id, roofColor, wallColor);
 });
+
+/** 分棟量體：每個矩形一棟，帶立面貼圖、平屋頂與女兒牆。 */
+function addBlocks(b, id, roofColor, wallColor) {
+  b.peak = b.top;
+  for (const r of b.blocks) {
+    const ca = Math.cos(r.ang), sa = Math.sin(r.ang), hw = r.w / 2, hd = r.d / 2;
+    const at = (u, v) => [r.cx + u * ca - v * sa, r.cz + u * sa + v * ca];
+    const cs = [at(-hw, -hd), at(hw, -hd), at(hw, hd), at(-hw, hd)];
+    let run = 0;
+    const foot = wallColor.clone().multiplyScalar(0.8);
+    for (let i = 0; i < 4; i++) {
+      run += facadeQuad(b.facade || 'plain', id, cs[i], cs[(i + 1) % 4], r.base, r.top, run, r.ground, b.floorH, foot, wallColor);
+    }
+    const rc = b.roofStyle === 'green' ? GREEN_ROOF : roofColor;
+    pushTri(roofPos, roofCol, roofOwner, id, rc, [cs[0][0], r.top, cs[0][1]], [cs[1][0], r.top, cs[1][1]], [cs[2][0], r.top, cs[2][1]]);
+    pushTri(roofPos, roofCol, roofOwner, id, rc, [cs[0][0], r.top, cs[0][1]], [cs[2][0], r.top, cs[2][1]], [cs[3][0], r.top, cs[3][1]]);
+    // 女兒牆
+    for (let i = 0; i < 4; i++) {
+      const [x1, z1] = cs[i], [x2, z2] = cs[(i + 1) % 4];
+      pushTri(wallPos, wallCol, wallOwner, id, wallColor, [x1, r.top, z1], [x2, r.top, z2], [x2, r.top + 1, z2]);
+      pushTri(wallPos, wallCol, wallOwner, id, wallColor, [x1, r.top, z1], [x2, r.top + 1, z2], [x1, r.top + 1, z1]);
+    }
+    b.peak = Math.max(b.peak, r.top + 1);
+  }
+  b.top = Math.max(...b.blocks.map((r) => r.top));
+}
 
 /** 在矩形 p 上蓋四坡（廡殿）屋頂；p.top 比建物簷口高時先補牆。 */
 function addHipRoof(b, p, id, roofColor, wallColor) {
@@ -339,6 +429,19 @@ function makeBridge(x) {
 const wallMesh = meshFrom(wallPos, wallCol);
 const roofMesh = meshFrom(roofPos, roofCol);
 wallMesh.userData.owner = wallOwner;
+const facadeMeshes = [];
+for (const [kind, B] of facadeBuckets) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(B.pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(B.uv, 2));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(B.col, 3));
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: facadeTexture(kind), vertexColors: true, side: THREE.DoubleSide }));
+  m.castShadow = m.receiveShadow = true;
+  m.userData.owner = B.owner;
+  scene.add(m);
+  facadeMeshes.push(m);
+}
 roofMesh.userData.owner = roofOwner;
 
 // ---------- 樹木 ----------
@@ -514,7 +617,8 @@ function flyTo(target, dist, polar = 0.95, azimuth = null) {
   const endPos = target.clone().add(new THREE.Vector3().setFromSpherical(sph));
   anim = { t0: performance.now(), fromPos: camera.position.clone(), fromTgt: controls.target.clone(), toPos: endPos, toTgt: target.clone() };
 }
-const HOME = { target: new THREE.Vector3(-70, groundY(-70, -20), -20), dist: 1450, polar: 0.8, azimuth: 0.45 };
+// 起始畫面：從正門上空往北看校本部中庭（揚生館在左、綜合大樓在右、大願橋居中）
+const HOME = { target: new THREE.Vector3(-20, groundY(-20, -300), -300), dist: 980, polar: 1.06, azimuth: 0.1 };
 function goHome(instant = false) {
   if (instant) {
     controls.target.copy(HOME.target);
@@ -544,7 +648,7 @@ canvas.addEventListener('pointerup', (e) => {
   if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
   const r = canvas.getBoundingClientRect();
   ray.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), camera);
-  const hit = ray.intersectObjects([wallMesh, roofMesh, terrain], false)[0];
+  const hit = ray.intersectObjects([wallMesh, roofMesh, ...facadeMeshes, terrain], false)[0];
   if (!hit || hit.object === terrain) { select(null); return; }
   const b = buildings[hit.object.userData.owner[hit.faceIndex]];
   const p = placeByOsm.get(b.id);

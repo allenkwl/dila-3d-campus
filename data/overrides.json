@@ -1,57 +1,94 @@
 {
-  "_說明": "buildings 以 OSM way id 為鍵：name、height（牆身到簷口的公尺數，斜屋頂另加）、roofType（hip 預設｜flat）、mainExtra（主體矩形額外加高，用於大殿）、overhang（出簷公尺）、pitch（屋頂坡度，高/半寬）、skip。places 是地標清單：osm 指向建物，或用 latlon 標點。高度多為估計，需請總務處核對樓層。 campus: true 可把 OSM 園區範圍外的建物視為園區建物（不轉灰）。",
+  "_說明": "buildings 以 OSM way id 為鍵：name、height（牆身到簷口的公尺數，斜屋頂另加）、roofType（hip 預設｜flat）、mainExtra（主體矩形額外加高，用於大殿）、overhang（出簷公尺）、pitch（屋頂坡度，高/半寬）、skip。places 是地標清單：osm 指向建物，或用 latlon 標點。高度多為估計，需請總務處核對樓層。 campus: true 可把 OSM 園區範圍外的建物視為園區建物（不轉灰）。 facade：立面貼圖（ribbon 清水模帶狀窗、fins 直向格柵、gridwood 白牆木欄杆、brick 磚牆方窗、gym 上實牆下玻璃）；floorH 樓高；roofType blocks 時用 floors 指定各棟樓層數；roofStyle green 為植栽屋頂。",
   "buildings": {
     "524912895": {
-      "height": 15,
+      "height": 15.2,
       "roofType": "flat",
-      "wall": "#b4b1a9"
+      "wall": "#b4b1a9",
+      "facade": "ribbon",
+      "floorH": 3.8,
+      "roofStyle": "green"
     },
     "524912896": {
-      "height": 13,
+      "height": 11.4,
       "roofType": "flat",
       "wall": "#b4b1a9",
-      "name": "綜合大樓"
+      "name": "綜合大樓",
+      "facade": "ribbon",
+      "floorH": 3.8,
+      "roofStyle": "green"
     },
     "524912897": {
-      "height": 11,
+      "height": 11.4,
       "roofType": "flat",
       "wall": "#b4b1a9",
-      "name": "綜合大樓"
+      "name": "綜合大樓",
+      "facade": "fins",
+      "floorH": 3.8,
+      "roofStyle": "green"
     },
     "524912890": {
       "height": 17,
-      "roofType": "flat",
-      "wall": "#c9c3b6",
-      "name": "禪悅書苑"
+      "roofType": "blocks",
+      "wall": "#eeebe4",
+      "name": "禪悅書苑",
+      "floors": [
+        4
+      ],
+      "facade": "gridwood",
+      "floorH": 3.3,
+      "roof": "#b9b7b1"
     },
     "524884387": {
       "height": 20,
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
-      "roof": "#66706b"
+      "roof": "#66706b",
+      "facade": "brick",
+      "floorH": 3.6
     },
     "524884386": {
       "height": 20,
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
-      "roof": "#66706b"
+      "roof": "#66706b",
+      "facade": "brick",
+      "floorH": 3.6
     },
     "524912887": {
       "height": 18,
       "wall": "#b4b1a9",
-      "roofType": "flat"
+      "roofType": "flat",
+      "facade": "gym",
+      "floorH": 18
     },
     "524912888": {
       "height": 17,
-      "wall": "#c9c3b6",
-      "roofType": "flat"
+      "wall": "#eeebe4",
+      "roofType": "blocks",
+      "floors": [
+        6,
+        5,
+        5
+      ],
+      "facade": "gridwood",
+      "floorH": 3.3,
+      "roof": "#b9b7b1"
     },
     "524912889": {
       "height": 17,
-      "wall": "#c9c3b6",
-      "roofType": "flat"
+      "wall": "#eeebe4",
+      "roofType": "blocks",
+      "floors": [
+        5,
+        6,
+        4
+      ],
+      "facade": "gridwood",
+      "floorH": 3.3,
+      "roof": "#b9b7b1"
     },
     "524884380": {
       "height": 23,
@@ -61,7 +98,9 @@
       "mainExtra": 3,
       "roof": "#6d6f6e",
       "pitch": 0.3,
-      "_註": "照片：中段最高、左右較低（三階梯）；米白兩層基座＋紅磚、深灰低坡頂"
+      "_註": "照片：中段最高、左右較低（三階梯）；米白兩層基座＋紅磚、深灰低坡頂",
+      "facade": "brick",
+      "floorH": 3.6
     },
     "386376241": {
       "height": 16,
@@ -81,7 +120,9 @@
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
-      "roof": "#66706b"
+      "roof": "#66706b",
+      "facade": "brick",
+      "floorH": 3.6
     },
     "386377523": {
       "height": 10,
@@ -89,7 +130,9 @@
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
-      "roof": "#66706b"
+      "roof": "#66706b",
+      "facade": "brick",
+      "floorH": 3.6
     },
     "386379418": {
       "height": 1.6,
@@ -110,7 +153,9 @@
       "base": "#7b8083",
       "baseH": 4,
       "roof": "#66706b",
-      "campus": true
+      "campus": true,
+      "facade": "brick",
+      "floorH": 3.6
     },
     "1255262018": {
       "height": 3,
@@ -121,27 +166,35 @@
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
-      "roof": "#66706b"
+      "roof": "#66706b",
+      "facade": "brick",
+      "floorH": 3.6
     },
     "524884390": {
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
-      "roof": "#66706b"
+      "roof": "#66706b",
+      "facade": "brick",
+      "floorH": 3.6
     },
     "524884383": {
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
       "roof": "#66706b",
-      "name": "男寮"
+      "name": "男寮",
+      "facade": "brick",
+      "floorH": 3.6
     },
     "524884384": {
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
       "roof": "#66706b",
-      "name": "男寮"
+      "name": "男寮",
+      "facade": "brick",
+      "floorH": 3.6
     },
     "524884391": {
       "wall": "#a3a6a4",
@@ -155,7 +208,9 @@
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
-      "roof": "#66706b"
+      "roof": "#66706b",
+      "facade": "brick",
+      "floorH": 3.6
     }
   },
   "places": [
@@ -404,8 +459,8 @@
       "wMid": 5.5,
       "wall": 1.3,
       "arch": 2.5,
-      "color": "#bdbab2",
-      "deck": "#7a5b40",
+      "color": "#5d6164",
+      "deck": "#6b5640",
       "_註": "大願橋：全長約 108 公尺，兩端窄中間寬、中間高，兩側箱梁兼作牆（大元建築工場）"
     }
   ],
