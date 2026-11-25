@@ -45,7 +45,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 #card { position: relative; margin: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
 #card h2 { margin: 2px 0 6px; font-size: 17px; }
 #card .card-group { font-size: 12px; color: var(--accent); }
-#card .card-desc { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--muted); }
+#card .card-desc { margin: 0; white-space: pre-line; font-size: 13.5px; line-height: 1.6; color: var(--muted); }
 #card-close { position: absolute; right: 6px; top: 4px; border: 0; background: none; font-size: 20px; color: var(--muted); cursor: pointer; }
 #list { flex: 1; overflow: auto; padding: 4px 0 12px; }
 #list h3 { margin: 12px 18px 4px; font-size: 12px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 6px; }
@@ -61,3 +61,5 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
   #app.panel-hidden #map { height: 100dvh; }
   .layer-tools { right: 60px; font-size: 12px; }
 }
+#card .card-src { display: inline-block; margin-top: 6px; font-size: 12.5px; color: var(--accent); }
+#card .card-src[hidden] { display: none; }

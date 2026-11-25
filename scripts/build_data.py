@@ -99,6 +99,70 @@ def area(poly):
     return abs(sum(poly[i - 1][0] * poly[i][1] - poly[i][0] * poly[i - 1][1] for i in range(len(poly)))) / 2
 
 
+def decompose(poly, snap=1.2, min_side=3.0):
+    """把近似直角的建物輪廓拆成矩形，讓每塊都能蓋真正的四坡屋頂。
+
+    先轉到主要牆面方向，用輪廓頂點座標切成格子，再貪婪地取最大的實心矩形。
+    回傳 [{cx, cz, w（沿長軸）, d, ang}]，ang 為長軸相對 +x 的弧度。
+    """
+    # 主方向：以邊長加權的 4θ 圓平均
+    sx = sy = 0.0
+    for i in range(len(poly)):
+        (x1, z1), (x2, z2) = poly[i - 1], poly[i]
+        L = math.hypot(x2 - x1, z2 - z1)
+        a = math.atan2(z2 - z1, x2 - x1)
+        sx += L * math.cos(4 * a); sy += L * math.sin(4 * a)
+    th = math.atan2(sy, sx) / 4
+    c, s = math.cos(-th), math.sin(-th)
+    rp = [(x * c - z * s, x * s + z * c) for x, z in poly]
+
+    def cluster(vals):
+        vals = sorted(vals); out = [vals[0]]
+        for v in vals[1:]:
+            if v - out[-1] > snap:
+                out.append(v)
+        return out
+    us, vs = cluster([p[0] for p in rp]), cluster([p[1] for p in rp])
+    nu, nv = len(us) - 1, len(vs) - 1
+    if nu < 1 or nv < 1:
+        return []
+    inside = [[point_in_poly((us[i] + us[i + 1]) / 2, (vs[j] + vs[j + 1]) / 2, rp) for j in range(nv)] for i in range(nu)]
+    used = [[False] * nv for _ in range(nu)]
+    rects = []
+    while True:
+        best = None
+        for i0 in range(nu):
+            for j0 in range(nv):
+                if not inside[i0][j0] or used[i0][j0]:
+                    continue
+                jmax = nv
+                for i1 in range(i0, nu):
+                    j = j0
+                    while j < jmax and inside[i1][j] and not used[i1][j]:
+                        j += 1
+                    jmax = j
+                    if jmax == j0:
+                        break
+                    area_ = (us[i1 + 1] - us[i0]) * (vs[jmax] - vs[j0])
+                    if best is None or area_ > best[0]:
+                        best = (area_, i0, i1, j0, jmax)
+        if best is None:
+            break
+        _, i0, i1, j0, j1 = best
+        for i in range(i0, i1 + 1):
+            for j in range(j0, j1):
+                used[i][j] = True
+        w, d = us[i1 + 1] - us[i0], vs[j1] - vs[j0]
+        if min(w, d) < min_side:
+            continue
+        cu, cv = (us[i0] + us[i1 + 1]) / 2, (vs[j0] + vs[j1]) / 2
+        cx, cz = cu * math.cos(th) - cv * math.sin(th), cu * math.sin(th) + cv * math.cos(th)
+        ang = th if w >= d else th + math.pi / 2
+        rects.append({'cx': round(cx, 2), 'cz': round(cz, 2), 'w': round(max(w, d), 2), 'd': round(min(w, d), 2),
+                      'ang': round(ang, 4)})
+    return rects
+
+
 # ---------- 建物 ----------
 buildings = []
 for e in osm['elements']:
@@ -146,16 +210,34 @@ for e in osm['elements']:
         roof = [sorted(c[k] for c in cols)[len(cols) // 2] for k in range(3)]
     else:
         roof = [150, 150, 150]
-    buildings.append({
+    roof_type = ov.get('roofType', 'hip')
+    eave = round(max(es) + h, 2)
+    rec = {
         'id': e['id'],
         'name': ov.get('name', t.get('name', '')),
         'poly': [[round(x, 2), round(z, 2)] for x, z in poly],
         'base': round(min(es) - 1.5, 2),
-        'top': round(max(es) + h, 2),
+        'top': eave,          # 牆頂（簷口）高度；斜屋頂另加在上面
         'height': h,
-        'roof': '#%02x%02x%02x' % tuple(int(v) for v in roof),
-        'roofType': ov.get('roofType', 'hip' if t.get('building') == 'temple' else 'flat'),
-    })
+        'roof': ov.get('roof') or '#%02x%02x%02x' % tuple(int(v) for v in roof),
+        'wall': ov.get('wall'),
+        'roofExact': bool(ov.get('roof')),
+        'base_': ov.get('base'),      # 基座（下段牆面）顏色
+        'baseH': ov.get('baseH', 0),
+        'roofType': roof_type,
+    }
+    if roof_type != 'flat':
+        rects = decompose(poly)
+        if rects:
+            main = max(rects, key=lambda r: r['w'] * r['d'])
+            for r in rects:
+                r['top'] = round(eave + (ov.get('mainExtra', 0) if r is main else 0), 2)
+                if r is main and ov.get('tiers'):
+                    r['tiers'] = ov['tiers']
+            rec['parts'] = rects
+            rec['overhang'] = ov.get('overhang', 1.0)
+            rec['pitch'] = ov.get('pitch', 0.38)
+    buildings.append(rec)
 
 # ---------- 樹木（依正射影像的深綠色像素撒點） ----------
 trees = []
@@ -179,6 +261,22 @@ while z < z_s - 3:
         x += TS
     z += TS
 
+# ---------- 特殊造型（圓塔、鐘亭等，overrides.extras） ----------
+extras = []
+for x in overrides.get('extras', []):
+    cx, cz = to_xz(*x['latlon'])
+    rec = {k: v for k, v in x.items() if k not in ('latlon', '_註')}
+    rec.update({'x': round(cx, 2), 'z': round(cz, 2), 'y': round(elev(*x['latlon']), 2)})
+    if 'alignTo' in x:
+        b = next(b for b in buildings if b['id'] == x['alignTo'])
+        if b.get('parts'):
+            rec['ang'] = max(b['parts'], key=lambda r: r['w'] * r['d'])['ang']
+        else:
+            r = decompose(b['poly'])
+            rec['ang'] = max(r, key=lambda r: r['w'] * r['d'])['ang'] if r else 0
+        rec['y'] = b['top']    # 站在平台上
+    extras.append(rec)
+
 # ---------- 地標 ----------
 places = []
 for p in overrides['places']:
@@ -198,6 +296,7 @@ out = {
     'grid': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'step': GRID, 'nx': nx, 'nz': nz, 'h': grid},
     'ortho': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'x1': round(x_e, 2), 'z1': round(z_s, 2)},
     'buildings': buildings,
+    'extras': extras,
     'trees': trees,
     'places': places,
 }

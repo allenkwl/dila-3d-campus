@@ -1,39 +1,345 @@
 {
-  "_說明": "buildings 以 OSM way id 為鍵，可指定 name / height（公尺，建物本體高）/ roofType（flat|hip|gable）/ skip。places 是地標清單：osm 指向建物，或用 latlon 標點；desc 待學校提供正式說明。height 多為依面積估計，需請總務處核對樓層。",
+  "_說明": "buildings 以 OSM way id 為鍵：name、height（牆身到簷口的公尺數，斜屋頂另加）、roofType（hip 預設｜flat）、mainExtra（主體矩形額外加高，用於大殿）、overhang（出簷公尺）、pitch（屋頂坡度，高/半寬）、skip。places 是地標清單：osm 指向建物，或用 latlon 標點。高度多為估計，需請總務處核對樓層。",
   "buildings": {
-    "524912895": {"height": 18},
-    "524912896": {"height": 18},
-    "524912897": {"height": 14},
-    "524884387": {"height": 18},
-    "524884386": {"height": 18},
-    "524912887": {"height": 14},
-    "524912888": {"height": 15},
-    "524912889": {"height": 15},
-    "386376241": {"height": 20, "roofType": "hip"},
-    "386376074": {"height": 16, "roofType": "hip"},
-    "386377523": {"height": 12, "roofType": "hip"},
-    "386379418": {"height": 14, "roofType": "hip"},
-    "1354558503": {"height": 8, "roofType": "hip"},
-    "917183452": {"height": 10}
+    "524912895": {
+      "height": 15,
+      "roofType": "flat",
+      "wall": "#b4b1a9"
+    },
+    "524912896": {
+      "height": 13,
+      "roofType": "flat",
+      "wall": "#b4b1a9",
+      "name": "綜合大樓"
+    },
+    "524912897": {
+      "height": 11,
+      "roofType": "flat",
+      "wall": "#b4b1a9",
+      "name": "綜合大樓"
+    },
+    "524912890": {
+      "height": 17,
+      "roofType": "flat",
+      "wall": "#c9c3b6"
+    },
+    "524884387": {
+      "height": 20,
+      "wall": "#9d6a52",
+      "base": "#7b8083",
+      "baseH": 4,
+      "roof": "#66706b"
+    },
+    "524884386": {
+      "height": 20,
+      "wall": "#9d6a52",
+      "base": "#7b8083",
+      "baseH": 4,
+      "roof": "#66706b"
+    },
+    "524912887": {
+      "height": 18,
+      "wall": "#b4b1a9",
+      "roofType": "flat"
+    },
+    "524912888": {
+      "height": 17,
+      "wall": "#c9c3b6",
+      "roofType": "flat"
+    },
+    "524912889": {
+      "height": 17,
+      "wall": "#c9c3b6",
+      "roofType": "flat"
+    },
+    "524884380": {
+      "height": 26,
+      "wall": "#9d6a52",
+      "base": "#7b8083",
+      "baseH": 4,
+      "roofType": "flat"
+    },
+    "386376241": {
+      "height": 16,
+      "mainExtra": 9,
+      "overhang": 2.2,
+      "tiers": 2,
+      "wall": "#d9d5cb",
+      "base": "#7b8083",
+      "baseH": 14,
+      "roof": "#5c6462"
+    },
+    "386376074": {
+      "height": 22,
+      "mainExtra": 2,
+      "overhang": 2.0,
+      "wall": "#9d6a52",
+      "base": "#7b8083",
+      "baseH": 4,
+      "roof": "#66706b"
+    },
+    "386377523": {
+      "height": 10,
+      "overhang": 2.0,
+      "wall": "#9d6a52",
+      "base": "#7b8083",
+      "baseH": 4,
+      "roof": "#66706b"
+    },
+    "386379418": {
+      "height": 1.6,
+      "roofType": "flat",
+      "wall": "#b9b6ad",
+      "roof": "#c2bfb6"
+    },
+    "1354558503": {
+      "height": 6,
+      "overhang": 1.5,
+      "pitch": 0.7,
+      "wall": "#7b8083",
+      "roof": "#66706b"
+    },
+    "917183452": {
+      "height": 8,
+      "wall": "#9d6a52",
+      "base": "#7b8083",
+      "baseH": 4,
+      "roof": "#66706b"
+    },
+    "1255262018": {
+      "height": 3,
+      "roofType": "flat",
+      "_註": "空拍看是屋頂停車場"
+    },
+    "524884389": {
+      "wall": "#9d6a52",
+      "base": "#7b8083",
+      "baseH": 4,
+      "roof": "#66706b"
+    },
+    "524884390": {
+      "wall": "#9d6a52",
+      "base": "#7b8083",
+      "baseH": 4,
+      "roof": "#66706b"
+    },
+    "524884383": {
+      "wall": "#9d6a52",
+      "base": "#7b8083",
+      "baseH": 4,
+      "roof": "#66706b"
+    },
+    "524884384": {
+      "wall": "#9d6a52",
+      "base": "#7b8083",
+      "baseH": 4,
+      "roof": "#66706b"
+    },
+    "524884391": {
+      "wall": "#a3a6a4",
+      "base": "#8e8d87",
+      "baseH": 4,
+      "roof": "#8d9396",
+      "height": 6,
+      "name": "法華書苑"
+    },
+    "1255262022": {
+      "wall": "#9d6a52",
+      "base": "#7b8083",
+      "baseH": 4,
+      "roof": "#66706b"
+    }
   },
   "places": [
-    {"id": "gym", "osm": 524912887, "name": "揚生館", "group": "文理學院", "desc": "體育館。"},
-    {"id": "dorm-chanyue", "osm": 524912888, "name": "禪悅書苑", "group": "文理學院", "desc": "學生宿舍。"},
-    {"id": "dorm-fayin", "osm": 524884380, "name": "法印書苑", "group": "文理學院", "desc": "教職員宿舍。"},
-    {"id": "general", "osm": 524912895, "name": "綜合大樓", "group": "文理學院", "desc": "（說明待補）"},
-    {"id": "humanities", "osm": 524912896, "name": "人文社會學群大樓", "group": "文理學院", "desc": "（說明待補）"},
-    {"id": "library", "osm": 524884387, "name": "圖書資訊館", "group": "文理學院", "desc": "（說明待補）"},
-    {"id": "buddhist-studies", "latlon": [25.24115, 121.61368], "name": "佛教學系大樓", "group": "文理學院", "desc": "（說明待補）"},
-    {"id": "conference", "latlon": [25.24164, 121.6156], "name": "國際會議廳", "group": "法鼓山園區", "desc": "（說明待補）"},
-    {"id": "east-gate", "latlon": [25.24548, 121.61907], "name": "東校門", "group": "校門", "desc": "（說明待補）"},
-    {"id": "main-gate", "latlon": [25.24218, 121.61665], "name": "正門", "group": "校門", "desc": "（說明待補）"},
-    {"id": "bldg1", "osm": 386376241, "name": "園區第一大樓", "group": "法鼓山園區", "desc": "（說明待補）"},
-    {"id": "bldg2", "osm": 386376074, "name": "園區第二大樓", "group": "法鼓山園區", "desc": "（說明待補）"},
-    {"id": "bldg3", "osm": 524884386, "name": "園區第三大樓", "group": "法鼓山園區", "desc": "（說明待補）"},
-    {"id": "chan-hall", "osm": 386377523, "name": "禪堂", "group": "法鼓山園區", "desc": "（說明待補）"},
-    {"id": "bell-tower", "osm": 386379418, "name": "法華鐘鐘樓", "group": "法鼓山園區", "desc": "（說明待補）"},
-    {"id": "sanmen", "osm": 1354558503, "name": "三門", "group": "法鼓山園區", "desc": "（說明待補）"},
-    {"id": "caoyuan", "osm": 917183452, "name": "曹源書苑", "group": "法鼓山園區", "desc": "（說明待補）"},
-    {"id": "parking", "latlon": [25.23541, 121.61977], "name": "法鼓山停車場", "group": "法鼓山園區", "desc": "（說明待補）"}
-  ]
+    {
+      "id": "general",
+      "osm": 524912895,
+      "name": "綜合大樓",
+      "group": "文理學院",
+      "desc": "文理學院的教學、行政與生活中心，地下一層、地上四層，設有教室、餐廳、大願·校史館與校長室；清水混凝土建築，平屋頂植栽綠化。",
+      "source": "https://www.dila.edu.tw/building1"
+    },
+    {
+      "id": "dorm-chanyue",
+      "osm": 524912888,
+      "name": "禪悅書苑",
+      "group": "文理學院",
+      "desc": "由七棟建築錯落組成的院落式學生宿舍，依山勢每棟高差一層樓，各棟四至六層，外牆為抿石子，內設圖書分館麗英館。",
+      "source": "https://greatvow.dila.edu.tw/?page_id=1514"
+    },
+    {
+      "id": "gym",
+      "osm": 524912887,
+      "name": "揚生館",
+      "group": "文理學院",
+      "desc": "清水混凝土體育館，一長一方兩個量體併置，地上五層，設有游心場、多功能球場與健身房，2015 年校慶揭幕。",
+      "source": "https://www.dila.edu.tw/building1"
+    },
+    {
+      "id": "library",
+      "osm": 524884387,
+      "name": "圖書資訊館",
+      "group": "文理學院",
+      "desc": "佛教學術圖書館，地上六層，二樓為國際會議廳。館前七棵百年雀榕，建館時地基為此後退十公尺。",
+      "source": "https://www.dila.edu.tw/building1"
+    },
+    {
+      "id": "dorm-fayin",
+      "osm": 524884380,
+      "name": "法印書苑",
+      "group": "文理學院",
+      "desc": "園區最高的建築，供文理學院教師與專任義工住宿，樓層呈三階梯式，外觀為褐、灰、白三色。",
+      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010629294315628197"
+    },
+    {
+      "id": "bldg1",
+      "osm": 386376241,
+      "name": "大殿（第一大樓）",
+      "group": "法鼓山園區",
+      "desc": "第一大樓六樓為大殿，供奉青銅三寶佛，懸「本來面目」匾；三樓為開山紀念館。",
+      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L009783864713624896"
+    },
+    {
+      "id": "bldg2",
+      "osm": 386376074,
+      "name": "第二大樓（接待大廳）",
+      "group": "法鼓山園區",
+      "desc": "訪客動線的起點：二樓參學服務處與簡介館、三樓祈願觀音殿（三合院式，中庭水池）、四五樓齋堂、七樓國際宴會廳。",
+      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010537089382446672"
+    },
+    {
+      "id": "bldg3",
+      "osm": 524884386,
+      "name": "教育行政大樓（第三大樓）",
+      "group": "法鼓山園區",
+      "desc": "文理學院、中華佛學研究所、僧伽大學的教學行政區，以圓形大廳為起點，兩翼連接國際會議廳與圖書資訊館。",
+      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010590721761923000"
+    },
+    {
+      "id": "conference",
+      "latlon": [
+        25.24164,
+        121.6156
+      ],
+      "name": "國際會議廳",
+      "group": "法鼓山園區",
+      "desc": "位於教育行政大樓與圖書資訊館之間，設有同步翻譯室，國際佛學會議與論壇在此舉行。",
+      "source": "https://www.dila.edu.tw/building1"
+    },
+    {
+      "id": "chan-hall",
+      "osm": 386377523,
+      "name": "禪堂（選佛場）",
+      "group": "法鼓山園區",
+      "desc": "位於大殿後方的禪修中心，約可容納三百人，線條簡約，供奉白色石雕釋迦佛。",
+      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010620204300201350"
+    },
+    {
+      "id": "bell-tower",
+      "osm": 386379418,
+      "name": "法華鐘樓",
+      "group": "法鼓山園區",
+      "desc": "法華公園的主體。法華鐘重 25 公噸、高 4.5 公尺、直徑 2.64 公尺，鐘體鑄有整部《法華經》與〈大悲咒〉，2006 年安置。",
+      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010699535857418078"
+    },
+    {
+      "id": "sanmen",
+      "osm": 1354558503,
+      "name": "三門",
+      "group": "法鼓山園區",
+      "desc": "園區第三重三門，懸聖嚴法師題「觀音道場」匾；前兩重為法鼓路口的山徽石與大停車場旁的「靈山勝境」石。",
+      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010705859949206028"
+    },
+    {
+      "id": "fahua-shuyuan",
+      "osm": 524884391,
+      "name": "法華書苑",
+      "group": "法鼓山園區",
+      "desc": "位於三門右側的鐵皮屋，園區完工前是主要的修行與活動中心，現為義工住宿與禪修、法會空間。（位置依官網描述推定）",
+      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010638662779664324"
+    },
+    {
+      "id": "caoyuan",
+      "osm": 917183452,
+      "name": "曹源書苑",
+      "group": "法鼓山園區",
+      "desc": "（說明待補；名稱取自 OpenStreetMap）"
+    },
+    {
+      "id": "parking",
+      "latlon": [
+        25.23541,
+        121.61977
+      ],
+      "name": "大停車場",
+      "group": "法鼓山園區",
+      "desc": "一般車輛停放處，再搭接駁車到第二大樓遊覽車平台；對面為「靈山勝境」石與朝山步道起點。",
+      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010705859949206028"
+    },
+    {
+      "id": "east-gate",
+      "latlon": [
+        25.24548,
+        121.61907
+      ],
+      "name": "東校門",
+      "group": "校門",
+      "desc": "（位置取自 OpenStreetMap，待確認）"
+    },
+    {
+      "id": "main-gate",
+      "latlon": [
+        25.24218,
+        121.61665
+      ],
+      "name": "正門",
+      "group": "校門",
+      "desc": "（位置取自 OpenStreetMap，待確認）"
+    }
+  ],
+  "extras": [
+    {
+      "type": "tower",
+      "latlon": [
+        25.2418629,
+        121.6152325
+      ],
+      "r": 6.8,
+      "h": 30,
+      "color": "#ecebe6",
+      "roof": "#9a5b44",
+      "_註": "第三大樓前的白色圓塔，頂上有圓頂"
+    },
+    {
+      "type": "tower",
+      "latlon": [
+        25.2415062,
+        121.6152889
+      ],
+      "r": 4,
+      "h": 15,
+      "color": "#ecebe6",
+      "roof": "#a9a49a",
+      "_註": "較小的圓頂"
+    },
+    {
+      "type": "pavilion",
+      "latlon": [
+        25.2401889,
+        121.6166702
+      ],
+      "alignTo": 386379418,
+      "w": 12,
+      "d": 12,
+      "colH": 7,
+      "roof": "#4d5155",
+      "col": "#7a3b2a",
+      "_註": "法華鐘樓：四面開敞、深灰攢尖頂、紅褐木柱"
+    }
+  ],
+  "sources": {
+    "ddm": "https://www.ddm.org.tw/default-fagushan/xmdoc?xsmsid=0K359565063711046420",
+    "dila": "https://www.dila.edu.tw/building1",
+    "artech": "https://www.krisyaoartech.com/zh-tw/projects/education/Dharma-Drum-Institute-of-Liberal-Arts"
+  }
 }
