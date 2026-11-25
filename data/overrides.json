@@ -1,0 +1,39 @@
+{
+  "_說明": "buildings 以 OSM way id 為鍵，可指定 name / height（公尺，建物本體高）/ roofType（flat|hip|gable）/ skip。places 是地標清單：osm 指向建物，或用 latlon 標點；desc 待學校提供正式說明。height 多為依面積估計，需請總務處核對樓層。",
+  "buildings": {
+    "524912895": {"height": 18},
+    "524912896": {"height": 18},
+    "524912897": {"height": 14},
+    "524884387": {"height": 18},
+    "524884386": {"height": 18},
+    "524912887": {"height": 14},
+    "524912888": {"height": 15},
+    "524912889": {"height": 15},
+    "386376241": {"height": 20, "roofType": "hip"},
+    "386376074": {"height": 16, "roofType": "hip"},
+    "386377523": {"height": 12, "roofType": "hip"},
+    "386379418": {"height": 14, "roofType": "hip"},
+    "1354558503": {"height": 8, "roofType": "hip"},
+    "917183452": {"height": 10}
+  },
+  "places": [
+    {"id": "gym", "osm": 524912887, "name": "揚生館", "group": "文理學院", "desc": "體育館。"},
+    {"id": "dorm-chanyue", "osm": 524912888, "name": "禪悅書苑", "group": "文理學院", "desc": "學生宿舍。"},
+    {"id": "dorm-fayin", "osm": 524884380, "name": "法印書苑", "group": "文理學院", "desc": "教職員宿舍。"},
+    {"id": "general", "osm": 524912895, "name": "綜合大樓", "group": "文理學院", "desc": "（說明待補）"},
+    {"id": "humanities", "osm": 524912896, "name": "人文社會學群大樓", "group": "文理學院", "desc": "（說明待補）"},
+    {"id": "library", "osm": 524884387, "name": "圖書資訊館", "group": "文理學院", "desc": "（說明待補）"},
+    {"id": "buddhist-studies", "latlon": [25.24115, 121.61368], "name": "佛教學系大樓", "group": "文理學院", "desc": "（說明待補）"},
+    {"id": "conference", "latlon": [25.24164, 121.6156], "name": "國際會議廳", "group": "法鼓山園區", "desc": "（說明待補）"},
+    {"id": "east-gate", "latlon": [25.24548, 121.61907], "name": "東校門", "group": "校門", "desc": "（說明待補）"},
+    {"id": "main-gate", "latlon": [25.24218, 121.61665], "name": "正門", "group": "校門", "desc": "（說明待補）"},
+    {"id": "bldg1", "osm": 386376241, "name": "園區第一大樓", "group": "法鼓山園區", "desc": "（說明待補）"},
+    {"id": "bldg2", "osm": 386376074, "name": "園區第二大樓", "group": "法鼓山園區", "desc": "（說明待補）"},
+    {"id": "bldg3", "osm": 524884386, "name": "園區第三大樓", "group": "法鼓山園區", "desc": "（說明待補）"},
+    {"id": "chan-hall", "osm": 386377523, "name": "禪堂", "group": "法鼓山園區", "desc": "（說明待補）"},
+    {"id": "bell-tower", "osm": 386379418, "name": "法華鐘鐘樓", "group": "法鼓山園區", "desc": "（說明待補）"},
+    {"id": "sanmen", "osm": 1354558503, "name": "三門", "group": "法鼓山園區", "desc": "（說明待補）"},
+    {"id": "caoyuan", "osm": 917183452, "name": "曹源書苑", "group": "法鼓山園區", "desc": "（說明待補）"},
+    {"id": "parking", "latlon": [25.23541, 121.61977], "name": "法鼓山停車場", "group": "法鼓山園區", "desc": "（說明待補）"}
+  ]
+}

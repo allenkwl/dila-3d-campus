@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>法鼓 3D 校園</title>
+<meta name="description" content="法鼓文理學院與法鼓山世界佛教教育園區的互動 3D 導覽（雛形）">
+<link rel="stylesheet" href="src/style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="app">
+  <div id="map">
+    <canvas id="scene"></canvas>
+    <div id="labels"></div>
+    <div id="loading">載入校園中…</div>
+    <div class="map-tools">
+      <button id="btn-panel" title="地標列表" aria-label="地標列表">☰</button>
+      <button id="btn-reset" title="回到全景" aria-label="回到全景">⌂</button>
+      <button id="btn-fs" title="全螢幕" aria-label="全螢幕">⛶</button>
+    </div>
+    <div class="layer-tools">
+      <label><input type="checkbox" id="opt-photo" checked> 空拍底圖</label>
+      <label><input type="checkbox" id="opt-trees" checked> 樹木</label>
+      <label><input type="checkbox" id="opt-labels" checked> 標籤</label>
+    </div>
+    <div class="credit">底圖：國土測繪中心 NLSC 正射影像｜建物：© OpenStreetMap contributors｜地形：AWS Terrain Tiles｜雛形版，建物高度為估計值</div>
+  </div>
+  <aside id="panel">
+    <header>
+      <h1>法鼓 3D 校園</h1>
+      <p>法鼓文理學院・法鼓山世界佛教教育園區</p>
+    </header>
+    <div id="card" hidden>
+      <button id="card-close" aria-label="關閉">×</button>
+      <div class="card-group"></div>
+      <h2></h2>
+      <p class="card-desc"></p>
+    </div>
+    <div id="list"></div>
+    <footer>拖曳旋轉・右鍵或雙指平移・滾輪縮放</footer>
+  </aside>
+</div>
+<script type="module" src="src/app.js"></script>
+</body>
+</html>

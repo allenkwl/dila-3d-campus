@@ -1,0 +1,63 @@
+:root {
+  --bg: #f4f1ea;
+  --panel: #fbfaf6;
+  --ink: #2b2a27;
+  --muted: #6f6a60;
+  --line: #e2ddd1;
+  --accent: #8a5a2b;
+  --chip: #ffffffee;
+  --chip-ink: #2b2a27;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1c1b19; --panel: #23221f; --ink: #ece8df; --muted: #a39d90; --line: #3a3833;
+    --accent: #d9a46a; --chip: #2a2926ee; --chip-ink: #ece8df;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+  font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; }
+#app { display: flex; height: 100dvh; }
+#map { position: relative; flex: 1; min-width: 0; overflow: hidden; background: #cfd9df; }
+#scene { display: block; width: 100%; height: 100%; touch-action: none; }
+#labels { position: absolute; inset: 0; pointer-events: none; }
+.lbl { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); white-space: nowrap;
+  font-size: 12px; line-height: 1; padding: 5px 8px 5px 18px; border-radius: 999px; background: var(--chip);
+  color: var(--chip-ink); box-shadow: 0 1px 4px #0003; cursor: pointer; pointer-events: auto; user-select: none; }
+.lbl::before { content: ""; position: absolute; left: 7px; top: 50%; width: 6px; height: 6px; margin-top: -3px;
+  border-radius: 50%; background: var(--dot, var(--accent)); }
+.lbl::after { content: ""; position: absolute; left: 50%; bottom: -6px; width: 1px; height: 6px; background: var(--chip-ink); opacity: .5; }
+.lbl.active { background: var(--accent); color: #fff; }
+.lbl.active::before { background: #fff; }
+#loading { position: absolute; inset: 0; display: grid; place-items: center; font-size: 15px; color: var(--muted); background: var(--bg); }
+.map-tools { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 6px; }
+.map-tools button { width: 36px; height: 36px; border: 0; border-radius: 8px; background: var(--chip); color: var(--chip-ink);
+  font-size: 18px; box-shadow: 0 1px 4px #0003; cursor: pointer; }
+.layer-tools { position: absolute; left: 12px; top: 12px; display: flex; gap: 10px; flex-wrap: wrap; padding: 6px 10px;
+  border-radius: 8px; background: var(--chip); color: var(--chip-ink); font-size: 13px; box-shadow: 0 1px 4px #0003; }
+.layer-tools label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.credit { position: absolute; left: 8px; right: 8px; bottom: 6px; font-size: 10.5px; color: #fff; text-shadow: 0 1px 2px #000a; pointer-events: none; }
+#panel { width: 300px; flex: none; display: flex; flex-direction: column; background: var(--panel); border-left: 1px solid var(--line); }
+#app.panel-hidden #panel { display: none; }
+#panel header { padding: 16px 18px 10px; border-bottom: 1px solid var(--line); }
+#panel h1 { margin: 0; font-size: 19px; letter-spacing: .04em; }
+#panel header p { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
+#card { position: relative; margin: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+#card h2 { margin: 2px 0 6px; font-size: 17px; }
+#card .card-group { font-size: 12px; color: var(--accent); }
+#card .card-desc { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--muted); }
+#card-close { position: absolute; right: 6px; top: 4px; border: 0; background: none; font-size: 20px; color: var(--muted); cursor: pointer; }
+#list { flex: 1; overflow: auto; padding: 4px 0 12px; }
+#list h3 { margin: 12px 18px 4px; font-size: 12px; font-weight: 600; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+#list h3 i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+#list button { display: block; width: 100%; text-align: left; border: 0; background: none; color: var(--ink);
+  padding: 7px 18px; font-size: 14px; cursor: pointer; font-family: inherit; }
+#list button:hover, #list button.active { background: var(--line); }
+#panel footer { padding: 8px 18px; font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--line); }
+@media (max-width: 760px) {
+  #app { flex-direction: column; }
+  #map { flex: none; height: 72dvh; }
+  #panel { width: auto; flex: 1; min-height: 0; border-left: 0; border-top: 1px solid var(--line); }
+  #app.panel-hidden #map { height: 100dvh; }
+  .layer-tools { right: 60px; font-size: 12px; }
+}
