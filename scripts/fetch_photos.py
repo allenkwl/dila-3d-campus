@@ -21,7 +21,7 @@ def ddm_images(sid, limit):
     urls = [urllib.parse.urljoin('https://www.ddm.org.tw/', u)
             for u in re.findall(r'<img[^>]+src="((?:https://www\.ddm\.org\.tw)?/files/file_pool/[^"]+)"', html)
             if 's__3522770' not in u]
-    return [{'img': u, 'credit': '法鼓山世界佛教教育園區', 'link': DDM + sid, 'caption': title} for u in urls[:limit]]
+    return [{'img': u, 'credit': '法鼓山世界佛教教育園區', 'link': DDM + sid, 'caption': ''} for u in urls[:limit]]
 
 
 def commons(name):
