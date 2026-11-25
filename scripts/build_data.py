@@ -163,6 +163,37 @@ def decompose(poly, snap=1.2, min_side=3.0):
     return rects
 
 
+def clip_rect(poly, x0, z0, x1, z1):
+    """Sutherland–Hodgman：把輪廓裁到場景矩形內（超出地形邊界的部分不畫）。"""
+    def clip(pts, inside, cross):
+        out = []
+        for i in range(len(pts)):
+            a, b = pts[i - 1], pts[i]
+            if inside(b):
+                if not inside(a):
+                    out.append(cross(a, b))
+                out.append(b)
+            elif inside(a):
+                out.append(cross(a, b))
+        return out
+    def at_x(x):
+        return lambda a, b: (x, a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]))
+    def at_z(z):
+        return lambda a, b: (a[0] + (b[0] - a[0]) * (z - a[1]) / (b[1] - a[1]), z)
+    for inside, cross in [(lambda p: p[0] >= x0, at_x(x0)), (lambda p: p[0] <= x1, at_x(x1)),
+                          (lambda p: p[1] >= z0, at_z(z0)), (lambda p: p[1] <= z1, at_z(z1))]:
+        poly = clip(poly, inside, cross)
+        if not poly:
+            break
+    return poly
+
+
+# 園區範圍：法鼓山世界佛教教育園區＋法鼓文理學院（OSM）；範圍外的建物只當灰色背景
+CAMPUS_IDS = (387137553, 1255168300)
+campus_polys = [[to_xz(p['lat'], p['lon']) for p in e['geometry']]
+                for e in osm['elements'] if e['type'] == 'way' and e['id'] in CAMPUS_IDS]
+CONTEXT_WALL, CONTEXT_ROOF = '#c8c8c4', '#a7a8a5'
+
 # ---------- 建物 ----------
 buildings = []
 for e in osm['elements']:
@@ -176,8 +207,14 @@ for e in osm['elements']:
     ll = [(p['lat'], p['lon']) for p in g]
     if ll[0] == ll[-1]:
         ll = ll[:-1]
-    poly = [to_xz(*p) for p in ll]
+    ov = overrides['buildings'].get(str(e['id']), {})
+    poly = clip_rect([to_xz(*p) for p in ll], x_w + 1, z_n + 1, x_e - 1, z_s - 1)
+    if len(poly) < 3:
+        continue
+    ll = [(LAT0 - z / MZ, LON0 + x / MX) for x, z in poly]
     a = area(poly)
+    cxz = to_xz(clat, clon)
+    context = not ov.get('campus') and not any(point_in_poly(cxz[0], cxz[1], cp) for cp in campus_polys)
     ov = overrides['buildings'].get(str(e['id']), {})
     if ov.get('skip'):
         continue
@@ -219,9 +256,10 @@ for e in osm['elements']:
         'base': round(min(es) - 1.5, 2),
         'top': eave,          # 牆頂（簷口）高度；斜屋頂另加在上面
         'height': h,
-        'roof': ov.get('roof') or '#%02x%02x%02x' % tuple(int(v) for v in roof),
-        'wall': ov.get('wall'),
-        'roofExact': bool(ov.get('roof')),
+        'roof': CONTEXT_ROOF if context else ov.get('roof') or '#%02x%02x%02x' % tuple(int(v) for v in roof),
+        'wall': CONTEXT_WALL if context else ov.get('wall'),
+        'roofExact': context or bool(ov.get('roof')),
+        'context': context,
         'base_': ov.get('base'),      # 基座（下段牆面）顏色
         'baseH': ov.get('baseH', 0),
         'roofType': roof_type,

@@ -489,6 +489,7 @@ canvas.addEventListener('pointerup', (e) => {
   if (p) { select(p.id); return; }
   select(null);
   setHighlight(b);
+  if (b.context) { showCard('園區外', b.name || '鄰近建物', '不屬於法鼓文理學院或法鼓山園區，僅作為周邊背景顯示。'); return; }
   showCard('建物', b.name || '未命名建物', `高約 ${Math.round(b.peak - b.top + b.height)} 公尺（估計）。OSM way ${b.id}`);
 });
 

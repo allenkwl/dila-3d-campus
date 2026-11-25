@@ -1,5 +1,5 @@
 {
-  "_說明": "buildings 以 OSM way id 為鍵：name、height（牆身到簷口的公尺數，斜屋頂另加）、roofType（hip 預設｜flat）、mainExtra（主體矩形額外加高，用於大殿）、overhang（出簷公尺）、pitch（屋頂坡度，高/半寬）、skip。places 是地標清單：osm 指向建物，或用 latlon 標點。高度多為估計，需請總務處核對樓層。",
+  "_說明": "buildings 以 OSM way id 為鍵：name、height（牆身到簷口的公尺數，斜屋頂另加）、roofType（hip 預設｜flat）、mainExtra（主體矩形額外加高，用於大殿）、overhang（出簷公尺）、pitch（屋頂坡度，高/半寬）、skip。places 是地標清單：osm 指向建物，或用 latlon 標點。高度多為估計，需請總務處核對樓層。 campus: true 可把 OSM 園區範圍外的建物視為園區建物（不轉灰）。",
   "buildings": {
     "524912895": {
       "height": 15,
@@ -107,7 +107,8 @@
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
-      "roof": "#66706b"
+      "roof": "#66706b",
+      "campus": true
     },
     "1255262018": {
       "height": 3,
