@@ -715,7 +715,7 @@ function flyTo(target, dist, polar = 0.95, azimuth = null) {
   const endPos = target.clone().add(new THREE.Vector3().setFromSpherical(sph));
   anim = { t0: performance.now(), fromPos: camera.position.clone(), fromTgt: controls.target.clone(), toPos: endPos, toTgt: target.clone() };
 }
-// 起始畫面：從正門上空往北看校本部中庭（揚生館在左、綜合大樓在右、大願橋居中）
+// 起始畫面：從圖書資訊館東側上空往北看校本部中庭（揚生館在左、綜合大樓在右、大願橋居中）
 const HOME = { target: new THREE.Vector3(-20, groundY(-20, -300), -300), dist: 980, polar: 1.06, azimuth: 0.1 };
 function goHome(instant = false) {
   if (instant) {

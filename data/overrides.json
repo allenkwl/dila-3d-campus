@@ -279,7 +279,7 @@
     {
       "id": "bldg1",
       "osm": 386376241,
-      "name": "大殿（第一大樓）",
+      "name": "大殿（法鼓山園區）",
       "group": "法鼓山園區",
       "desc": "第一大樓六樓為大殿，供奉青銅三寶佛，懸「本來面目」匾；三樓為開山紀念館。",
       "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L009783864713624896"
@@ -287,7 +287,7 @@
     {
       "id": "bldg2",
       "osm": 386376074,
-      "name": "第二大樓（接待大廳）",
+      "name": "第二大樓（法鼓山園區）",
       "group": "法鼓山園區",
       "desc": "訪客動線的起點：二樓參學服務處與簡介館、三樓祈願觀音殿（三合院式，中庭水池）、四五樓齋堂、七樓國際宴會廳。",
       "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010537089382446672"
@@ -295,7 +295,7 @@
     {
       "id": "bldg3",
       "osm": 524884386,
-      "name": "教育行政大樓（第三大樓）",
+      "name": "教育行政大樓（法鼓山園區）",
       "group": "法鼓山園區",
       "desc": "文理學院、中華佛學研究所、僧伽大學的教學行政區，以圓形大廳為起點，兩翼連接國際會議廳與圖書資訊館。",
       "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010590721761923000"
@@ -306,7 +306,7 @@
         25.24164,
         121.6156
       ],
-      "name": "國際會議廳",
+      "name": "國際會議廳（法鼓山園區）",
       "group": "法鼓山園區",
       "desc": "位於教育行政大樓與圖書資訊館之間，設有同步翻譯室，國際佛學會議與論壇在此舉行。",
       "source": "https://www.dila.edu.tw/building1"
@@ -314,23 +314,15 @@
     {
       "id": "chan-hall",
       "osm": 386377523,
-      "name": "禪堂（選佛場）",
+      "name": "禪堂（法鼓山園區）",
       "group": "法鼓山園區",
       "desc": "位於大殿後方的禪修中心，約可容納三百人，線條簡約，供奉白色石雕釋迦佛。",
       "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010620204300201350"
     },
     {
-      "id": "men-dorm",
-      "osm": 524884383,
-      "name": "男寮（推定）",
-      "group": "法鼓山園區",
-      "desc": "沿法印路而上的四合院建築，是僧團男眾法師與僧伽大學學僧的住宿修行空間。（建物對應依官網描述與位置推定）",
-      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0M029514997931693860"
-    },
-    {
       "id": "bell-tower",
       "osm": 386379418,
-      "name": "法華鐘樓",
+      "name": "法華鐘樓（法鼓山園區）",
       "group": "法鼓山園區",
       "desc": "法華公園的主體。法華鐘重 25 公噸、高 4.5 公尺、直徑 2.64 公尺，鐘體鑄有整部《法華經》與〈大悲咒〉，2006 年安置。",
       "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010699535857418078"
@@ -338,7 +330,7 @@
     {
       "id": "sanmen",
       "osm": 1354558503,
-      "name": "三門",
+      "name": "三門（法鼓山園區）",
       "group": "法鼓山園區",
       "desc": "園區第三重三門，懸聖嚴法師題「觀音道場」匾；前兩重為法鼓路口的山徽石與大停車場旁的「靈山勝境」石。",
       "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010705859949206028"
@@ -346,7 +338,7 @@
     {
       "id": "fahua-shuyuan",
       "osm": 524884391,
-      "name": "法華書苑",
+      "name": "法華書苑（法鼓山園區）",
       "group": "法鼓山園區",
       "desc": "位於三門右側的鐵皮屋，園區完工前是主要的修行與活動中心，現為義工住宿與禪修、法會空間。（位置依官網描述推定）",
       "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010638662779664324"
@@ -354,7 +346,7 @@
     {
       "id": "caoyuan",
       "osm": 917183452,
-      "name": "曹源書苑",
+      "name": "曹源書苑（法鼓山園區）",
       "group": "法鼓山園區",
       "desc": "（說明待補；名稱取自 OpenStreetMap）"
     },
@@ -364,7 +356,7 @@
         25.23541,
         121.61977
       ],
-      "name": "大停車場",
+      "name": "大停車場（法鼓山園區）",
       "group": "法鼓山園區",
       "desc": "一般車輛停放處，再搭接駁車到第二大樓遊覽車平台；對面為「靈山勝境」石與朝山步道起點。",
       "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010705859949206028"
@@ -378,17 +370,6 @@
       "name": "東校門",
       "group": "校門",
       "desc": "位於北23線上、法行路與縣道交會處，車輛由此經法行路進入校園東側（綜合大樓）。位置依文理學院校園安全地圖確認。",
-      "source": "https://www.dila.edu.tw/campus1"
-    },
-    {
-      "id": "main-gate",
-      "latlon": [
-        25.24218,
-        121.61665
-      ],
-      "name": "正門",
-      "group": "校門",
-      "desc": "位於法大一橋南端、圖書資訊館東側，連接法鼓山園區內的道路。位置依文理學院校園安全地圖確認。",
       "source": "https://www.dila.edu.tw/campus1"
     },
     {

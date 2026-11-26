@@ -209,27 +209,8 @@
    "https://greatvow.dila.edu.tw/?page_id=1514"
   ]
  },
- "men-dorm": {
-  "detail": "男寮位在法印路旁，是一座四合院式的建築，提供僧團男眾法師與法鼓山僧伽大學學僧住宿與修行。房間只沿單邊配置，窗外可遠眺金山平原與海洋，讓日常起居也保有開闊的視野。\n\n這棟建築在 OpenStreetMap 上沒有名稱，此處依法鼓山官網「沿法印路而上的四合院」的描述，以及它緊鄰法印路的位置推定為男寮；若有誤，請以總務處資料為準。",
-  "facts": [
-   "沿法印路而上的四合院",
-   "男眾法師與僧大學僧住宿修行",
-   "單邊設房、面向金山平原與海洋",
-   "建物對應為推定"
-  ],
-  "sources": [
-   "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0M029514997931693860"
-  ]
- },
  "east-gate": {
   "detail": "位於北23線上、法行路與縣道交會處，車輛由此經法行路進入校園東側（綜合大樓）。位置依文理學院校園安全地圖確認。",
-  "facts": [],
-  "sources": [
-   "https://www.dila.edu.tw/campus1"
-  ]
- },
- "main-gate": {
-  "detail": "位於法大一橋南端、圖書資訊館東側，連接法鼓山園區內的道路。位置依文理學院校園安全地圖確認。",
   "facts": [],
   "sources": [
    "https://www.dila.edu.tw/campus1"
