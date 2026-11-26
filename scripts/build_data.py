@@ -395,7 +395,17 @@ for x in overrides.get('extras', []):
         else:
             trees.extend(row)
         continue
-    if 'path' in x:   # 線狀物（橋、隧道）：每點帶地面高
+    if x['type'] == 'trail':   # 步道：清掉壓在步道上的自動樹木
+        pts = [to_xz(*p) for p in x['path']]
+        def seg_d(px, pz):
+            best = 1e9
+            for (x1, z1), (x2, z2) in zip(pts, pts[1:]):
+                dx, dz = x2 - x1, z2 - z1
+                t = max(0, min(1, ((px - x1) * dx + (pz - z1) * dz) / (dx * dx + dz * dz or 1)))
+                best = min(best, math.hypot(px - x1 - t * dx, pz - z1 - t * dz))
+            return best
+        trees[:] = [t for t in trees if seg_d(t[0], t[2]) > x['w'] / 2 + 1.5]
+    if 'path' in x:   # 線狀物（橋、隧道、步道）：每點帶地面高
         rec['path'] = [[round(to_xz(*p)[0], 2), round(elev(*p), 2), round(to_xz(*p)[1], 2)] for p in x['path']]
         extras.append(rec)
         continue

@@ -886,6 +886,9 @@ function flatMesh(pos, color) {
 }
 const roadMesh = flatMesh((data.roads || []).flatMap((r) => ribbon(r.pts, r.w, 0.35)), '#d9d2c3');
 const roadEdge = flatMesh((data.roads || []).filter((r) => r.w >= 4).flatMap((r) => ribbon(r.pts, r.w + 1.6, 0.25)), '#b9b09d');
+// 步道：石板色窄帶，各畫風都顯示（道路在寫實風會隱藏，步道不隱藏）
+const trailMesh = flatMesh((data.extras || []).filter((x) => x.type === 'trail').flatMap((x) => ribbon(x.path.map(([px, , pz]) => [px, pz]), x.w, 0.4)), '#cfc3a6');
+trailMesh.visible = true;
 const waterPos = [];
 for (const poly of data.waters || []) {
   const ring = poly[0][0] === poly[poly.length - 1][0] && poly[0][1] === poly[poly.length - 1][1] ? poly.slice(0, -1) : poly;
