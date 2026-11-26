@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { MapControls } from 'three/addons/controls/MapControls.js';
+import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const GROUP_COLORS = { '文理學院': '#c0592b', '法鼓山園區': '#7a6a2f', '校門': '#3f6f8f' };
 const WALL = new THREE.Color('#e4ddcf');
@@ -484,32 +485,77 @@ for (const [kind, B] of facadeBuckets) {
 roofMesh.userData.owner = roofOwner;
 
 // ---------- 樹木 ----------
-// 樹分批：校區的先畫，外圍的等 outer.json 到了再加
-const treeFacet = new THREE.IcosahedronGeometry(1, 0), treeRound = new THREE.IcosahedronGeometry(1, 2);
-const treeLambert = new THREE.MeshLambertMaterial({ flatShading: true });
+// ---------- 樹 ----------
+// 兩種樹形：闊葉（數團樹冠＋樹幹）、針葉（疊錐＋樹幹）；樹冠下暗上亮。寫實用多面體，插畫風用圓潤版本。
+// 面數控制：闊葉約 90 面、針葉約 50 面；外圍用單團簡化版（約 20 面）。圓潤版只換成平滑法線，不加面數。
+function treeGeometry(kind, round, lite) {
+  const shade = (g, lo, hi, trunk) => {      // 依高度上色：下暗上亮
+    g = g.index ? g.toNonIndexed() : g;
+    const p = g.attributes.position, c = new Float32Array(p.count * 3);
+    let y0 = Infinity, y1 = -Infinity;
+    for (let i = 0; i < p.count; i++) { y0 = Math.min(y0, p.getY(i)); y1 = Math.max(y1, p.getY(i)); }
+    for (let i = 0; i < p.count; i++) {
+      const t = (p.getY(i) - y0) / (y1 - y0 || 1), v = lo + (hi - lo) * t;
+      if (trunk) c.set([0.42, 0.33, 0.27], i * 3); else c.set([v, v, v], i * 3);
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(c, 3));
+    g.deleteAttribute('uv');
+    return g;
+  };
+  const parts = [];
+  if (kind === 1) {
+    const tiers = lite ? [[0.9, 2.6, 0.3]] : [[0.95, 1.5, -0.2], [0.72, 1.3, 0.45], [0.48, 1.1, 1.05]];
+    for (const [r, h, y] of tiers) parts.push(new THREE.ConeGeometry(r, h, 7, 1, true).translate(0, y, 0));
+  } else {
+    const blobs = lite ? [[0.95, 0, 0, 0]] : [[0.85, 0, 0, 0], [0.62, 0.48, -0.18, 0.22], [0.6, -0.45, -0.12, -0.28], [0.52, 0.08, 0.5, -0.05]];
+    for (const [r, x, y, z] of blobs) parts.push(new THREE.IcosahedronGeometry(r, 0).translate(x, y, z));
+  }
+  let canopy = shade(mergeGeometries(parts.map((g) => g.toNonIndexed())), 0.62, 1.12, false);
+  if (round) {                                 // 平滑法線：合併相同頂點後重算
+    canopy.deleteAttribute('normal');
+    canopy = mergeVertices(canopy);
+    canopy.computeVertexNormals();
+    canopy = canopy.toNonIndexed();
+  }
+  if (lite) return canopy;
+  const trunk = shade(new THREE.CylinderGeometry(0.07, 0.11, 1.4, 5, 1, true).translate(0, -1.15, 0), 0, 0, true);
+  return mergeGeometries([canopy, trunk]);
+}
+const TREE_GEO = {};
+for (const kind of [0, 1]) for (const lite of [false, true])
+  TREE_GEO[`${kind}${lite ? 'L' : ''}`] = { facet: treeGeometry(kind, false, lite), round: treeGeometry(kind, true, lite) };
+const treeLambert = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true });
+const treeSmooth = new THREE.MeshLambertMaterial({ vertexColors: true });
 const treeSets = [];
 function placeTrees(set, k) {
   const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler();
+  const tall = set.kind === 1 ? 1.25 : 1;     // 針葉樹較瘦高
   set.list.forEach(([x, y, z, s], i) => {
-    e.set(0, (i * 2.399) % 6.283, 0);
+    e.set(0, (x * 1.7 + z * 2.3) % 6.283, 0);
     q.setFromEuler(e);
-    m.compose(new THREE.Vector3(x, y + 2.6 * s * k, z), q, new THREE.Vector3(3.6 * s * k, 3.4 * s * k, 3.6 * s * k));
+    const sx = 3.4 * s * k * (set.kind === 1 ? 0.8 : 1), sy = 3.4 * s * k * tall;
+    m.compose(new THREE.Vector3(x, y + 1.15 * sy + 0.3, z), q, new THREE.Vector3(sx, sy, sx));
     set.mesh.setMatrixAt(i, m);
   });
   set.mesh.instanceMatrix.needsUpdate = true;
   set.scale = k;
 }
-function addTrees(list) {
-  if (!list?.length) return null;
-  const mesh = new THREE.InstancedMesh(treeFacet, treeLambert, list.length);
-  const set = { mesh, list, scale: 0 };
-  placeTrees(set, 1);
-  mesh.setColorAt(0, new THREE.Color());
-  mesh.castShadow = mesh.receiveShadow = true;
-  mesh.visible = $('#opt-trees')?.checked !== false;
-  scene.add(mesh);
-  treeSets.push(set);
-  return set;
+function addTrees(list, lite = false) {
+  if (!list?.length) return;
+  for (const kind of [0, 1]) {
+    const sub = list.filter((t) => (t[7] || 0) === kind);
+    if (!sub.length) continue;
+    const key = `${kind}${lite ? 'L' : ''}`;
+    const mesh = new THREE.InstancedMesh(TREE_GEO[key].facet, treeLambert, sub.length);
+    const set = { mesh, list: sub, kind, key, scale: 0 };
+    placeTrees(set, 1);
+    mesh.setColorAt(0, new THREE.Color());
+    mesh.castShadow = !lite;                   // 外圍遠處的樹不投影，省效能
+    mesh.receiveShadow = true;
+    mesh.visible = $('#opt-trees')?.checked !== false;
+    scene.add(mesh);
+    treeSets.push(set);
+  }
 }
 addTrees(data.trees);
 
@@ -765,14 +811,15 @@ const toonGrad = (() => {
 const toonOf = new Map(colorMeshes.map((m) => [m, new THREE.MeshToonMaterial({ map: m.material.map || null, vertexColors: true, side: THREE.DoubleSide, gradientMap: toonGrad })]));
 
 // 樹：風格各自的色盤與外形
-const treeToon = new THREE.MeshToonMaterial({ gradientMap: toonGrad });
+const treeToon = new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: toonGrad });
 function setTreeScale(k) { for (const set of treeSets) if (set.scale !== k) placeTrees(set, k); }
 function paintTrees(pal) {
   const c = new THREE.Color();
-  for (const { mesh, list } of treeSets) {
+  for (const { mesh, list, kind } of treeSets) {
     list.forEach(([, , , , r, g, b], i) => {
-      if (!pal) c.setRGB(r / 255, g / 255, b / 255, THREE.SRGBColorSpace).offsetHSL(0, 0.05, 0.05);
+      if (!pal) c.setRGB(r / 255, g / 255, b / 255, THREE.SRGBColorSpace).offsetHSL(0, 0.08, 0.06);
       else c.set(pal[i % 7 < 3 ? 0 : i % 7 < 6 ? 1 : 2]).offsetHSL(0, 0, ((i * 7919) % 100) / 1000 - 0.05);
+      if (kind === 1) c.offsetHSL(0.04, -0.05, -0.07);   // 針葉樹偏深、偏藍綠
       mesh.setColorAt(i, c);
     });
     mesh.instanceColor.needsUpdate = true;
@@ -781,11 +828,11 @@ function paintTrees(pal) {
 
 const STYLES = {
   real:   { name: '寫實', photo: true, sky: '#cdd9e0', fog: [2200, 5200], hemi: 1.4, sun: 2.2, trees: null, round: false, sat: 1, light: 1, toon: false },
-  pastel: { name: '清雅', photo: false, ground: ['#b9cf98', '#8fb174', '#4f7a45', '#9cc3c4'], treeScale: 1.45, sky: '#e9ede4', fog: [1800, 4600], hemi: 1.9, sun: 1.6,
+  pastel: { name: '清雅', photo: false, ground: ['#b9cf98', '#8fb174', '#4f7a45', '#9cc3c4'], treeScale: 1.3, sky: '#e9ede4', fog: [1800, 4600], hemi: 1.9, sun: 1.6,
             trees: ['#4f7d45', '#5f8f4f', '#79a35e'], round: true, sat: 0.85, light: 1.06, toon: false },
-  ink:    { name: '水墨', photo: true, treeScale: 1.25, sky: '#efe9dc', fog: [500, 2600], hemi: 1.6, sun: 1.5,
+  ink:    { name: '水墨', photo: true, treeScale: 1.15, sky: '#efe9dc', fog: [500, 2600], hemi: 1.6, sun: 1.5,
             trees: ['#6d7a55', '#7f8a62', '#596648'], round: true, sat: 0.55, light: 1.05, toon: false },
-  fairy:  { name: '童話', photo: false, ground: ['#b8ea86', '#8fd170', '#47a352', '#6fd0ef'], treeScale: 1.45, sky: '#bfe6ff', fog: [2000, 5000], hemi: 2.0, sun: 2.0,
+  fairy:  { name: '童話', photo: false, ground: ['#b8ea86', '#8fd170', '#47a352', '#6fd0ef'], treeScale: 1.3, sky: '#bfe6ff', fog: [2000, 5000], hemi: 2.0, sun: 2.0,
             trees: ['#3faa55', '#62c45a', '#2f8f63'], round: true, sat: 1.45, light: 1.08, toon: true },
 };
 let styleKey = 'real';
@@ -802,7 +849,10 @@ function applyStyle(key) {
   scene.background = new THREE.Color(st.sky);
   scene.fog.color.set(st.sky); scene.fog.near = st.fog[0]; scene.fog.far = st.fog[1];
   hemi.intensity = st.hemi; sun.intensity = st.sun;
-  for (const { mesh } of treeSets) { mesh.geometry = st.round ? treeRound : treeFacet; mesh.material = st.toon ? treeToon : treeLambert; }
+  for (const { mesh, key } of treeSets) {
+    mesh.geometry = TREE_GEO[key][st.round ? 'round' : 'facet'];
+    mesh.material = st.toon ? treeToon : st.round ? treeSmooth : treeLambert;
+  }
   paintTrees(st.trees);
   tintBuildings(st.sat, st.light);
   for (const m of colorMeshes) m.material = st.toon ? toonOf.get(m) : lambertOf.get(m);
@@ -827,7 +877,7 @@ getJSON('data/outer.json').then((od) => {
   data.outer = od.outer;
   outerMesh = buildOuterMesh(od.outer);
   scene.add(outerMesh);
-  addTrees(od.trees);
+  addTrees(od.trees, true);
   applyStyle(styleKey);
   loadTex('data/ortho_outer.jpg', (t) => { outerPhotoMat.map = t; outerPhotoMat.color.set('#ffffff'); outerPhotoMat.needsUpdate = true; });
 });

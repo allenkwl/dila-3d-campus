@@ -280,25 +280,78 @@ for e in osm['elements']:
             rec['pitch'] = ov.get('pitch', 0.38)
     buildings.append(rec)
 
-# ---------- 樹木（依正射影像的深綠色像素撒點） ----------
-trees = []
+# ---------- 樹木（依正射影像撒點；避開建物與道路） ----------
 import random
 random.seed(7)
+TREE_ROAD_W = {'tertiary': 7, 'unclassified': 5.5, 'residential': 5, 'service': 4, 'footway': 2, 'path': 1.6,
+               'steps': 2, 'track': 3}
+# 道路佔用格（2 公尺格），樹不種在路上
+road_cells = set()
+for e in osm['elements']:
+    t = e.get('tags', {})
+    if e['type'] != 'way' or t.get('highway') not in TREE_ROAD_W or 'geometry' not in e:
+        continue
+    half = TREE_ROAD_W[t['highway']] / 2 + 1.5
+    pts = [to_xz(p['lat'], p['lon']) for p in e['geometry']]
+    for (x1, z1), (x2, z2) in zip(pts, pts[1:]):
+        L = math.hypot(x2 - x1, z2 - z1); n = max(1, int(L / 1.5))
+        for k in range(n + 1):
+            cx = x1 + (x2 - x1) * k / n; cz = z1 + (z2 - z1) * k / n
+            for dx in range(-int(half // 2) - 1, int(half // 2) + 2):
+                for dz in range(-int(half // 2) - 1, int(half // 2) + 2):
+                    if math.hypot(dx * 2, dz * 2) <= half:
+                        road_cells.add((int(cx // 2) + dx, int(cz // 2) + dz))
+on_road = lambda x, z: (int(x // 2), int(z // 2)) in road_cells
 building_polys = [b['poly'] for b in buildings]
-TS = 7.0
+
+
+def in_building(x, z, pad=2.5):
+    for p in building_polys:
+        if abs(p[0][0] - x) > 150 or abs(p[0][1] - z) > 150:
+            continue
+        if point_in_poly(x, z, p) or any(point_in_poly(x + dx, z + dz, p) for dx, dz in ((pad, 0), (-pad, 0), (0, pad), (0, -pad))):
+            return True
+    return False
+
+
+def tree_kind(x, z):
+    """0 闊葉、1 針葉：以低頻雜訊分區，針葉樹成片出現（約兩成）"""
+    n = math.sin(x * 0.011 + 1.3) * math.cos(z * 0.009 - 0.7) + 0.5 * math.sin((x + z) * 0.023)
+    return 1 if n > 0.75 else 0
+
+
+def make_tree(jx, jz, y, rgb):
+    r, g, b = rgb
+    lum = 0.3 * r + 0.59 * g + 0.11 * b
+    # 越暗（樹冠越濃密）樹越大
+    s = random.uniform(0.8, 1.25) * (1.0 + max(0.0, (100 - lum)) / 140)
+    return [round(jx, 1), round(y, 1), round(jz, 1), round(s, 2), int(r * 0.9), int(g * 0.95), int(b * 0.8), tree_kind(jx, jz)]
+
+
+def avg_rgb(sample_fn, lat, lon, d=1.2):
+    cs = [sample_fn(lat + dy / MZ, lon + dx / MX) for dx in (-d, 0, d) for dy in (-d, 0, d)]
+    return [sum(c[k] for c in cs) / len(cs) for k in range(3)]
+
+
+def treeish(rgb):
+    r, g, b = rgb
+    lum = 0.3 * r + 0.59 * g + 0.11 * b
+    return g >= r - 2 and g > b + 1 and lum < 118
+
+
+trees = []
+TS = 5.5
 z = z_n + 3
 while z < z_s - 3:
     x = x_w + 3
     while x < x_e - 3:
-        jx = x + random.uniform(-2.5, 2.5); jz = z + random.uniform(-2.5, 2.5)
+        jx = x + random.uniform(-2.2, 2.2); jz = z + random.uniform(-2.2, 2.2)
         lat = LAT0 - jz / MZ; lon = LON0 + jx / MX
-        r, g, b = ortho.sample(lat, lon)
-        lum = 0.3 * r + 0.59 * g + 0.11 * b
-        if g > r + 4 and g > b + 2 and lum < 95 and not any(point_in_poly(jx, jz, p) for p in building_polys
-                                                             if abs(p[0][0] - jx) < 120 and abs(p[0][1] - jz) < 120):
-            s = random.uniform(0.75, 1.35) * (1.25 if lum < 55 else 1.0)
-            trees.append([round(jx, 1), round(elev(lat, lon), 1), round(jz, 1), round(s, 2),
-                          int(r * 0.9), int(g * 0.95), int(b * 0.8)])
+        rgb = avg_rgb(ortho.sample, lat, lon)
+        lum = 0.3 * rgb[0] + 0.59 * rgb[1] + 0.11 * rgb[2]
+        # 亮一點的綠地（草坪）只零星種樹
+        if treeish(rgb) and (lum < 92 or random.random() < 0.25) and not on_road(jx, jz) and not in_building(jx, jz):
+            trees.append(make_tree(jx, jz, elev(lat, lon), rgb))
         x += TS
     z += TS
 
@@ -383,7 +436,7 @@ oforest = ''.join(oforest)
 
 # 外圍樹木：內圈外 500 公尺帶狀範圍，間距較大（放進 outer.json，背景載入）
 otrees = []
-TS2 = 9.0
+TS2 = 8.0
 z = oz_n
 while z < oz_s:
     x = ox_w
@@ -395,12 +448,10 @@ while z < oz_s:
             lat = LAT0 - jz / MZ; lon = LON0 + jx / MX
             u, v = oo.uv(lat, lon)
             if 0 <= u < o_ortho.size[0] and 0 <= v < o_ortho.size[1]:
-                r, g, b = op[int(u), int(v)]
-                lum = 0.3 * r + 0.59 * g + 0.11 * b
-                if g > r + 4 and g > b + 2 and lum < 95 and o_elev(lat, lon) > 2:
-                    s_ = random.uniform(0.8, 1.4)
-                    otrees.append([round(jx, 1), round(o_elev(lat, lon), 1), round(jz, 1), round(s_, 2),
-                                   int(r * 0.9), int(g * 0.95), int(b * 0.8)])
+                rgb = op[int(u), int(v)]
+                lum = 0.3 * rgb[0] + 0.59 * rgb[1] + 0.11 * rgb[2]
+                if treeish(rgb) and (lum < 92 or random.random() < 0.25) and o_elev(lat, lon) > 2:
+                    otrees.append(make_tree(jx, jz, o_elev(lat, lon), rgb))
         x += TS2
     z += TS2
 
