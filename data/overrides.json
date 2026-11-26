@@ -158,7 +158,9 @@
       "height": 1.6,
       "roofType": "flat",
       "wall": "#b9b6ad",
-      "roof": "#c2bfb6"
+      "roof": "#c2bfb6",
+      "hidden": true,
+      "_註": "OSM 輪廓是鐘樓平台＋階梯，斜坡上畫成方塊很突兀，只用來定位與對齊鐘亭"
     },
     "1354558503": {
       "height": 6,

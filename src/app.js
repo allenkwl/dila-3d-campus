@@ -221,6 +221,7 @@ function pushTri(arr, colArr, owner, id, color, ...pts) {
   owner.push(id);
 }
 buildings.forEach((b, id) => {
+  if (b.hidden) return;
   const poly = b.poly, n = poly.length;
   // 屋頂色取自空拍（已含日照），渲染時再受光一次會偏亮，所以略壓暗補償
   const roofColor = new THREE.Color(b.roof).multiplyScalar(b.roofExact ? 1 : 0.78);
@@ -565,7 +566,7 @@ const highlight = new THREE.LineSegments(new THREE.BufferGeometry(),
 highlight.renderOrder = 10;
 scene.add(highlight);
 function setHighlight(b) {
-  if (!b) { highlight.visible = false; return; }
+  if (!b || b.hidden) { highlight.visible = false; return; }
   const pts = [], n = b.poly.length;
   for (let i = 0; i < n; i++) {
     const [x1, z1] = b.poly[i], [x2, z2] = b.poly[(i + 1) % n];

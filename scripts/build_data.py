@@ -245,6 +245,7 @@ for e in osm['elements']:
         'context': context,
         'base_': ov.get('base'),      # 基座（下段牆面）顏色
         'baseH': ov.get('baseH', 0),
+        'hidden': bool(ov.get('hidden')),   # 只定位、不繪製
         'colonnade': ov.get('colonnade'),   # 主體上段柱廊顏色（如大殿的白色列柱）
         'facade': None if context else ov.get('facade'),   # 立面貼圖種類：ribbon / fins / gridwood / brick / gym
         'floorH': ov.get('floorH', 3.6),
@@ -372,7 +373,7 @@ for x in overrides.get('extras', []):
         else:
             r = decompose(b['poly'])
             rec['ang'] = max(r, key=lambda r: r['w'] * r['d'])['ang'] if r else 0
-        rec['y'] = b['top']    # 站在平台上
+        rec['y'] = round(elev(*x['latlon']) + 1.2, 2)   # 坐在自己所在位置的地面上
     extras.append(rec)
 
 # ---------- 外圍地形（低解析度，讓地圖邊緣不入鏡） ----------
