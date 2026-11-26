@@ -124,6 +124,7 @@ const outerMesh = await (async () => {
 // ---------- 建物 ----------
 // ---------- 立面貼圖（程式產生；一格 = 寬 4 公尺 × 一層樓） ----------
 const FACADE_W = 4;
+const TILE_W = { gym: 12 };   // 揚生館大面積實牆，格柵窗較稀疏
 function facadeTexture(kind) {
   const S = 256, cv = document.createElement('canvas');
   cv.width = cv.height = S;
@@ -140,19 +141,38 @@ function facadeTexture(kind) {
     rect(DARK, 0, 40, S, 216);
     for (let x = 4; x < S; x += 32) rect('#f1f1ee', x, 40, 12, 216);
     rect('#f3f3f1', 0, 0, S, 40);
-  } else if (kind === 'gridwood') {   // 白牆＋窗格＋木欄杆（禪悅書苑）
-    rect(GLASS, 60, 40, 136, 170);
-    rect('#8d4b32', 60, 150, 136, 40);            // 木質欄杆
-    for (let x = 64; x < 196; x += 14) rect('#a96244', x, 150, 6, 40);
-    rect('#e4e2dc', 18, 20, 14, 236); rect('#e4e2dc', 224, 20, 14, 236);  // 直向鰭片
-  } else if (kind === 'brick') {      // 磚牆＋方窗（園區）
+  } else if (kind === 'gridwood') {   // 粗白框分格，每格上窗下木板（禪悅書苑，抿石子）
+    rect('#5b666d', 40, 30, 176, 104);            // 窗（反射天空，偏亮）
+    for (let x = 40; x < 216; x += 44) rect('#a9b1b5', x, 30, 3, 104);
+    rect('#9c5b41', 40, 134, 176, 84);            // 木質欄板
+    for (let x = 44; x < 216; x += 12) rect('#b06c4d', x, 134, 6, 84);
+    rect('#d6d3cb', 34, 230, 188, 4);             // 凹進去的陰影
+    rect('#d6d3cb', 222, 26, 4, 208);
+  } else if (kind === 'brick') {      // 磚牆＋成排方窗（法印書苑、男寮、圖資館）
     for (let y = 0; y < S; y += 16) rect('#ececec', 0, y, S, 2);
-    for (const x of [36, 150]) { rect('#f6f6f4', x - 6, 66, 82, 128); rect(DARK, x, 72, 70, 116); rect('#7d8388', x, 126, 70, 4); }
-  } else if (kind === 'gym') {        // 上段清水模實牆、下段玻璃（揚生館）
-    for (let x = 0; x < S; x += 64) rect('#e9e9e6', x, 0, 3, 200);
-    rect('#e9e9e6', 0, 100, S, 3);
-    rect(GLASS, 0, 206, S, 50);                   // 一樓玻璃帶
-    for (let x = 0; x < S; x += 32) rect('#cfd3d4', x, 206, 3, 50);
+    for (const x of [30, 150]) { rect('#f6f6f4', x - 6, 64, 88, 132); rect(DARK, x, 70, 76, 120); rect('#9aa0a4', x + 36, 70, 4, 120); }
+  } else if (kind === 'brickslot') {  // 磚牆＋成對細長直窗（禪堂、第二／第三大樓）
+    for (let y = 0; y < S; y += 16) rect('#ececec', 0, y, S, 2);
+    for (const x of [56, 84, 160, 188]) { rect('#f4f4f2', x - 3, 46, 22, 172); rect(DARK, x, 50, 16, 164); }
+  } else if (kind === 'stone') {      // 粗面花崗石塊（大殿基座）
+    let k = 0;
+    for (let y = 0; y < S; y += 32, k++) {
+      for (let x = (k % 2) * -32; x < S; x += 64) {
+        const sh = 226 + ((x * 7 + y * 13) % 29);
+        rect(`rgb(${sh},${sh},${sh})`, x + 2, y + 2, 60, 28);
+      }
+    }
+    rect(DARK, 108, 104, 40, 48);                 // 稀疏的小窗
+  } else if (kind === 'gym') {        // 清水模牆面＋直向格柵窗（揚生館）
+    for (let x = 0; x < S; x += 128) rect('#e2e2df', x, 0, 3, S);
+    for (const [x, y] of [[32, 64], [96, 64], [32, 192], [96, 192], [160, 64], [224, 64], [160, 192], [224, 192]])
+      rect('#d9d9d6', x - 2, y - 2, 4, 4);         // 模板孔
+    rect('#2e3336', 170, 30, 30, 196);
+    for (let x = 172; x < 200; x += 7) rect('#e9e9e6', x, 30, 3, 196);
+  } else if (kind === 'gymglass') {   // 揚生館一樓玻璃帶
+    rect(GLASS, 0, 40, S, 216);
+    for (let x = 0; x < S; x += 32) rect('#c9cdce', x, 40, 4, 216);
+    rect('#f0f0ed', 0, 0, S, 40);
   }
   const t = new THREE.CanvasTexture(cv);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
@@ -167,8 +187,8 @@ const bucket = (kind) => {
 };
 /** 立面四邊形：a→b 為牆底邊，y0..y1 高度，u0 為沿牆起點距離，vBase 為樓層起算高度 */
 function facadeQuad(kind, id, [x1, z1], [x2, z2], y0, y1, u0, vBase, floorH, c0, c1) {
-  const B = bucket(kind), L = Math.hypot(x2 - x1, z2 - z1);
-  const ua = u0 / FACADE_W, ub = (u0 + L) / FACADE_W, va = (y0 - vBase) / floorH, vb = (y1 - vBase) / floorH;
+  const B = bucket(kind), L = Math.hypot(x2 - x1, z2 - z1), TW = TILE_W[kind] || FACADE_W;
+  const ua = u0 / TW, ub = (u0 + L) / TW, va = (y0 - vBase) / floorH, vb = (y1 - vBase) / floorH;
   const P = [[x1, y0, z1, ua, va, c0], [x2, y0, z2, ub, va, c0], [x2, y1, z2, ub, vb, c1],
              [x1, y0, z1, ua, va, c0], [x2, y1, z2, ub, vb, c1], [x1, y1, z1, ua, vb, c1]];
   for (const [x, y, z, u, v, c] of P) { B.pos.push(x, y, z); B.uv.push(u, v); B.col.push(c.r, c.g, c.b); }
@@ -254,7 +274,16 @@ function addBlocks(b, id, roofColor, wallColor) {
     let run = 0;
     const foot = wallColor.clone().multiplyScalar(0.8);
     for (let i = 0; i < 4; i++) {
-      run += facadeQuad(b.facade || 'plain', id, cs[i], cs[(i + 1) % 4], r.base, r.top, run, r.ground, b.floorH, foot, wallColor);
+      if (b.facade === 'gym') {
+        // 一樓（含坡地下方露出的部分）用玻璃帶，以上為清水模牆面
+        // 坡地下方露出的部分是清水模基座；入口層（高側地面起一層）是玻璃帶；以上為清水模牆面
+        const split = r.ground + b.floorH;
+        facadeQuad('gym', id, cs[i], cs[(i + 1) % 4], r.base, r.ground, run, r.ground, b.floorH, foot, wallColor);
+        facadeQuad('gymglass', id, cs[i], cs[(i + 1) % 4], r.ground, split, run, r.ground, b.floorH, wallColor, wallColor);
+        run += facadeQuad('gym', id, cs[i], cs[(i + 1) % 4], split, r.top, run, r.ground, b.floorH, wallColor, wallColor);
+      } else {
+        run += facadeQuad(b.facade || 'plain', id, cs[i], cs[(i + 1) % 4], r.base, r.top, run, r.ground, b.floorH, foot, wallColor);
+      }
     }
     const rc = b.roofStyle === 'green' ? GREEN_ROOF : roofColor;
     pushTri(roofPos, roofCol, roofOwner, id, rc, [cs[0][0], r.top, cs[0][1]], [cs[1][0], r.top, cs[1][1]], [cs[2][0], r.top, cs[2][1]]);

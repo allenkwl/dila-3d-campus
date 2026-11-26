@@ -255,14 +255,16 @@ for e in osm['elements']:
         # 分棟量體：輪廓拆成矩形，每棟依自己的地面高度與樓層數立起來（如禪悅書苑七棟錯落）
         floors = ov.get('floors', [])
         blocks = []
-        for k, r in enumerate(decompose(poly)):
+        rects = [dict(r) for r in ov['rects']] if 'rects' in ov else decompose(poly)
+        for k, r in enumerate(rects):
             ca, sa = math.cos(r['ang']), math.sin(r['ang'])
             corners = [(r['cx'] + u * ca - v * sa, r['cz'] + u * sa + v * ca)
                        for u, v in ((-r['w'] / 2, -r['d'] / 2), (r['w'] / 2, -r['d'] / 2), (r['w'] / 2, r['d'] / 2), (-r['w'] / 2, r['d'] / 2))]
             ys = [elev(LAT0 - z / MZ, LON0 + x / MX) for x, z in corners]
-            fl = floors[k] if k < len(floors) else (floors[-1] if floors else round(h / rec['floorH']))
-            r.update({'base': round(min(ys) - 1.5, 2), 'ground': round(max(ys), 2), 'floors': fl,
-                      'top': round(max(ys) + fl * rec['floorH'], 2)})
+            fl = r.pop('floors', None) or (floors[k] if k < len(floors) else (floors[-1] if floors else round(h / rec['floorH'])))
+            g = sum(ys) / len(ys)        # 以四角平均地面為樓層起算（坡地建物才不會被拉成塔樓）
+            r.update({'base': round(min(ys) - 1.5, 2), 'ground': round(g, 2), 'floors': fl,
+                      'top': round(g + fl * rec['floorH'], 2)})
             blocks.append(r)
         rec['blocks'] = blocks
     elif roof_type != 'flat':

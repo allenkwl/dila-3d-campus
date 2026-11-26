@@ -4,7 +4,7 @@
     "524912895": {
       "height": 15.2,
       "roofType": "flat",
-      "wall": "#b4b1a9",
+      "wall": "#c2bfb7",
       "facade": "ribbon",
       "floorH": 3.8,
       "roofStyle": "green"
@@ -12,7 +12,7 @@
     "524912896": {
       "height": 11.4,
       "roofType": "flat",
-      "wall": "#b4b1a9",
+      "wall": "#c2bfb7",
       "name": "綜合大樓",
       "facade": "ribbon",
       "floorH": 3.8,
@@ -21,7 +21,7 @@
     "524912897": {
       "height": 11.4,
       "roofType": "flat",
-      "wall": "#b4b1a9",
+      "wall": "#c2bfb7",
       "name": "綜合大樓",
       "facade": "fins",
       "floorH": 3.8,
@@ -30,7 +30,7 @@
     "524912890": {
       "height": 17,
       "roofType": "blocks",
-      "wall": "#eeebe4",
+      "wall": "#e2dfd6",
       "name": "禪悅書苑",
       "floors": [
         4
@@ -41,32 +41,51 @@
     },
     "524884387": {
       "height": 20,
-      "wall": "#9d6a52",
-      "base": "#7b8083",
-      "baseH": 4,
-      "roof": "#66706b",
+      "wall": "#ebe8e0",
+      "base": "#a3614a",
+      "baseH": 7.2,
+      "roof": "#5e6366",
       "facade": "brick",
       "floorH": 3.6
     },
     "524884386": {
       "height": 20,
-      "wall": "#9d6a52",
-      "base": "#7b8083",
-      "baseH": 4,
-      "roof": "#66706b",
-      "facade": "brick",
+      "wall": "#a3614a",
+      "base": "#7d8487",
+      "baseH": 4.5,
+      "roof": "#5e6366",
+      "facade": "brickslot",
       "floorH": 3.6
     },
     "524912887": {
-      "height": 18,
-      "wall": "#b4b1a9",
-      "roofType": "flat",
+      "wall": "#bdbab2",
+      "roofType": "blocks",
       "facade": "gym",
-      "floorH": 18
+      "floorH": 4,
+      "roof": "#9b9891",
+      "rects": [
+        {
+          "cx": -123.0,
+          "cz": -155.6,
+          "w": 68,
+          "d": 14,
+          "ang": 0.7957,
+          "floors": 5
+        },
+        {
+          "cx": -145.4,
+          "cz": -152.8,
+          "w": 34,
+          "d": 22,
+          "ang": 0.7957,
+          "floors": 3
+        }
+      ],
+      "_註": "一長一方兩量體（大元建築工場說明＋正射影像量測）；長量體 5 層、方量體挑高"
     },
     "524912888": {
       "height": 17,
-      "wall": "#eeebe4",
+      "wall": "#e2dfd6",
       "roofType": "blocks",
       "floors": [
         6,
@@ -79,7 +98,7 @@
     },
     "524912889": {
       "height": 17,
-      "wall": "#eeebe4",
+      "wall": "#e2dfd6",
       "roofType": "blocks",
       "floors": [
         5,
@@ -92,11 +111,11 @@
     },
     "524884380": {
       "height": 23,
-      "wall": "#9d6a52",
-      "base": "#e3e1db",
-      "baseH": 7,
+      "wall": "#a3614a",
+      "base": "#ebe8e0",
+      "baseH": 7.2,
       "mainExtra": 3,
-      "roof": "#6d6f6e",
+      "roof": "#5e6366",
       "pitch": 0.3,
       "_註": "照片：中段最高、左右較低（三階梯）；米白兩層基座＋紅磚、深灰低坡頂",
       "facade": "brick",
@@ -107,31 +126,32 @@
       "mainExtra": 9,
       "overhang": 2.2,
       "tiers": 2,
-      "wall": "#d9d5cb",
-      "base": "#7b8083",
-      "baseH": 14,
-      "roof": "#5c6462",
-      "colonnade": "#f1efe9"
+      "wall": "#8f9598",
+      "base": "#7d8487",
+      "baseH": 6,
+      "roof": "#4f5458",
+      "colonnade": "#f1efe9",
+      "facade": "stone"
     },
     "386376074": {
       "height": 22,
       "mainExtra": 2,
       "overhang": 2.0,
-      "wall": "#9d6a52",
-      "base": "#7b8083",
-      "baseH": 4,
-      "roof": "#66706b",
-      "facade": "brick",
+      "wall": "#a3614a",
+      "base": "#7d8487",
+      "baseH": 4.5,
+      "roof": "#5e6366",
+      "facade": "brickslot",
       "floorH": 3.6
     },
     "386377523": {
       "height": 10,
       "overhang": 2.0,
-      "wall": "#9d6a52",
-      "base": "#7b8083",
-      "baseH": 4,
-      "roof": "#66706b",
-      "facade": "brick",
+      "wall": "#a3614a",
+      "base": "#7d8487",
+      "baseH": 4.5,
+      "roof": "#5e6366",
+      "facade": "brickslot",
       "floorH": 3.6
     },
     "386379418": {
@@ -144,15 +164,15 @@
       "height": 6,
       "overhang": 1.5,
       "pitch": 0.7,
-      "wall": "#7b8083",
-      "roof": "#66706b"
+      "wall": "#3f4246",
+      "roof": "#6a6d70"
     },
     "917183452": {
       "height": 8,
-      "wall": "#9d6a52",
-      "base": "#7b8083",
+      "wall": "#a3614a",
+      "base": "#7d8487",
       "baseH": 4,
-      "roof": "#66706b",
+      "roof": "#5e6366",
       "campus": true,
       "facade": "brick",
       "floorH": 3.6
@@ -163,44 +183,44 @@
       "_註": "空拍看是屋頂停車場"
     },
     "524884389": {
-      "wall": "#9d6a52",
-      "base": "#7b8083",
-      "baseH": 4,
-      "roof": "#66706b",
+      "wall": "#a3614a",
+      "base": "#ebe8e0",
+      "baseH": 7.2,
+      "roof": "#5e6366",
       "facade": "brick",
       "floorH": 3.6
     },
     "524884390": {
-      "wall": "#9d6a52",
-      "base": "#7b8083",
-      "baseH": 4,
-      "roof": "#66706b",
+      "wall": "#a3614a",
+      "base": "#ebe8e0",
+      "baseH": 7.2,
+      "roof": "#5e6366",
       "facade": "brick",
       "floorH": 3.6
     },
     "524884383": {
-      "wall": "#9d6a52",
-      "base": "#7b8083",
-      "baseH": 4,
-      "roof": "#66706b",
+      "wall": "#a3614a",
+      "base": "#ebe8e0",
+      "baseH": 7.2,
+      "roof": "#5e6366",
       "name": "男寮",
       "facade": "brick",
       "floorH": 3.6
     },
     "524884384": {
-      "wall": "#9d6a52",
-      "base": "#7b8083",
-      "baseH": 4,
-      "roof": "#66706b",
+      "wall": "#a3614a",
+      "base": "#ebe8e0",
+      "baseH": 7.2,
+      "roof": "#5e6366",
       "name": "男寮",
       "facade": "brick",
       "floorH": 3.6
     },
     "524884391": {
-      "wall": "#a3a6a4",
+      "wall": "#e6e6e2",
       "base": "#8e8d87",
       "baseH": 4,
-      "roof": "#8d9396",
+      "roof": "#a6b2ab",
       "height": 6,
       "name": "法華書苑"
     },
@@ -208,7 +228,7 @@
       "wall": "#9d6a52",
       "base": "#7b8083",
       "baseH": 4,
-      "roof": "#66706b",
+      "roof": "#5e6366",
       "facade": "brick",
       "floorH": 3.6
     }
@@ -402,7 +422,7 @@
       "r": 6.8,
       "h": 30,
       "color": "#ecebe6",
-      "roof": "#9a5b44",
+      "roof": "#dcd9d2",
       "_註": "第三大樓前的白色圓塔，頂上有圓頂"
     },
     {
@@ -414,7 +434,7 @@
       "r": 4,
       "h": 15,
       "color": "#ecebe6",
-      "roof": "#a9a49a",
+      "roof": "#dcd9d2",
       "_註": "較小的圓頂"
     },
     {
