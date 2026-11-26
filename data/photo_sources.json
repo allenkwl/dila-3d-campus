@@ -202,5 +202,62 @@
       "credit": "法鼓文理學院",
       "link": "https://www.dila.edu.tw/innerpage/aF1Zt6bzU0Jq4Yi9/6f9yQ90ZI4pR2pze"
     }
+  ],
+  "seven-banyans": [
+    {
+      "url": "https://fagushan.ddm.org.tw/files/file_pool/1/0M029639234681250647/DSC00602.JPG",
+      "credit": "法鼓山世界佛教教育園區",
+      "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010670052118130818",
+      "caption": "圖書資訊館前的七棵雀榕"
+    },
+    {
+      "local": "seven-banyans-2.jpg",
+      "credit": "慶喜BLOG",
+      "link": "https://cqings.blogspot.com/2014/02/blog-post_2.html",
+      "caption": "冬季落葉的雀榕",
+      "_註": "影片截圖，手動加入"
+    }
+  ],
+  "sea-view": [
+    {
+      "local": "sea-view-1.jpg",
+      "credit": "法鼓文理學院 DILA VIDEO",
+      "link": "https://www.youtube.com/watch?v=EyNkBiUnV9k",
+      "caption": "空拍：圓通海印隧道與觀海區",
+      "_註": "影片截圖，手動加入"
+    },
+    {
+      "url": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEigCh1hWRhNdzeToEII3WI5gVva9stiSSI7kmUWZX9jwYaKH77bdlHOmp0BOkxD7Rc8u1KP5q7IcIEeUpXl7uhh2oN7EJ3FF34uFOxy_jvwLAkAJYgNKa2-pNr7fYz25Pl_nYIbPf2JEy8/s1600/IMG_20181114_135329.jpg",
+      "credit": "生命之河部落格",
+      "link": "http://chc750109gblog.blogspot.com/2019/01/blog-post_16.html",
+      "caption": "2018 年啟用活動"
+    }
+  ],
+  "haiyin-walk": [
+    {
+      "local": "haiyin-walk-1.jpg",
+      "credit": "法鼓文理學院 DILA VIDEO",
+      "link": "https://www.youtube.com/watch?v=EyNkBiUnV9k",
+      "caption": "草坡東緣的落羽松步道與坡底滯洪池",
+      "_註": "影片截圖，手動加入"
+    }
+  ],
+  "fayin-trail": [
+    {
+      "local": "fayin-trail-1.jpg",
+      "credit": "YouTube「走.讀.信步」",
+      "link": "https://www.youtube.com/watch?v=ZMeOUzbGraI",
+      "caption": "法印溪畔的石板步道",
+      "_註": "影片截圖，手動加入"
+    }
+  ],
+  "faxi-trail": [
+    {
+      "local": "faxi-trail-1.jpg",
+      "credit": "YouTube「走.讀.信步」",
+      "link": "https://www.youtube.com/watch?v=ZMeOUzbGraI",
+      "caption": "",
+      "_註": "影片截圖，手動加入"
+    }
   ]
 }

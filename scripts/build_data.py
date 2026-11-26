@@ -360,6 +360,17 @@ while z < z_s - 3:
 extras = []
 for x in overrides.get('extras', []):
     rec = {k: v for k, v in x.items() if k not in ('latlon', 'path', '_註')}
+    if x['type'] == 'clearTrees':   # 開闊草地（觀海區等）：清掉多邊形內自動撒的樹
+        poly = [to_xz(*p) for p in x['poly']]
+        def inside(px, pz):
+            c = False
+            for i in range(len(poly)):
+                (x1, z1), (x2, z2) = poly[i], poly[i - 1]
+                if (z1 > pz) != (z2 > pz) and px < x1 + (pz - z1) * (x2 - x1) / (z2 - z1):
+                    c = not c
+            return c
+        trees[:] = [t for t in trees if not inside(t[0], t[2])]
+        continue
     if x['type'] == 'treeRow':   # 指定位置的特色樹（雀榕、落羽松）：沿路徑等距種，並清掉附近自動撒的樹
         pts = [to_xz(*p) for p in x['path']]
         segs = [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]

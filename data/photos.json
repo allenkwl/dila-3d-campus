@@ -448,5 +448,71 @@
    "link": "https://www.dila.edu.tw/innerpage/aF1Zt6bzU0Jq4Yi9/6f9yQ90ZI4pR2pze",
    "caption": ""
   }
+ ],
+ "seven-banyans": [
+  {
+   "src": "data/photos/seven-banyans-1.jpg",
+   "w": 960,
+   "h": 640,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010670052118130818",
+   "caption": "圖書資訊館前的七棵雀榕"
+  },
+  {
+   "src": "data/photos/seven-banyans-2.jpg",
+   "w": 640,
+   "h": 478,
+   "credit": "慶喜BLOG",
+   "link": "https://cqings.blogspot.com/2014/02/blog-post_2.html",
+   "caption": "冬季落葉的雀榕"
+  }
+ ],
+ "sea-view": [
+  {
+   "src": "data/photos/sea-view-1.jpg",
+   "w": 1280,
+   "h": 510,
+   "credit": "法鼓文理學院 DILA VIDEO",
+   "link": "https://www.youtube.com/watch?v=EyNkBiUnV9k",
+   "caption": "空拍：圓通海印隧道與觀海區"
+  },
+  {
+   "src": "data/photos/sea-view-2.jpg",
+   "w": 800,
+   "h": 598,
+   "credit": "生命之河部落格",
+   "link": "http://chc750109gblog.blogspot.com/2019/01/blog-post_16.html",
+   "caption": "2018 年啟用活動"
+  }
+ ],
+ "haiyin-walk": [
+  {
+   "src": "data/photos/haiyin-walk-1.jpg",
+   "w": 1280,
+   "h": 510,
+   "credit": "法鼓文理學院 DILA VIDEO",
+   "link": "https://www.youtube.com/watch?v=EyNkBiUnV9k",
+   "caption": "草坡東緣的落羽松步道與坡底滯洪池"
+  }
+ ],
+ "fayin-trail": [
+  {
+   "src": "data/photos/fayin-trail-1.jpg",
+   "w": 1280,
+   "h": 720,
+   "credit": "YouTube「走.讀.信步」",
+   "link": "https://www.youtube.com/watch?v=ZMeOUzbGraI",
+   "caption": "法印溪畔的石板步道"
+  }
+ ],
+ "faxi-trail": [
+  {
+   "src": "data/photos/faxi-trail-1.jpg",
+   "w": 1280,
+   "h": 720,
+   "credit": "YouTube「走.讀.信步」",
+   "link": "https://www.youtube.com/watch?v=ZMeOUzbGraI",
+   "caption": ""
+  }
  ]
 }

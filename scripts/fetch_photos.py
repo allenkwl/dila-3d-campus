@@ -46,6 +46,8 @@ def main():
                 if 'ddm' in it:
                     imgs = ddm_images(it['ddm'], 10)
                     entries += [imgs[i] for i in it['pick'] if i < len(imgs)] if 'pick' in it else imgs[:it.get('max', 4)]
+                elif 'local' in it:   # 手動加入的圖（影片截圖等），直接沿用 data/photos/ 裡的檔案
+                    entries.append({'img': 'file://' + os.path.join(OUT, it['local']), 'credit': it['credit'], 'link': it['link'], 'caption': it.get('caption', '')})
                 elif 'commons' in it:
                     entries.append(commons(it['commons']))
                 else:
