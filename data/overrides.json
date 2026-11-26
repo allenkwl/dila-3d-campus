@@ -393,6 +393,83 @@
       "group": "校門",
       "desc": "位於西湖里、法海路與北23線交會處，經法海路可到校園東北側。位置依文理學院校園安全地圖推定。",
       "source": "https://www.dila.edu.tw/campus1"
+    },
+    {
+      "id": "seven-banyans",
+      "latlon": [
+        25.24124,
+        121.61542
+      ],
+      "name": "七棵雀榕",
+      "group": "校園景點",
+      "desc": "館前廣場的七棵百年雀榕，是法鼓山原生樹種；建館時為了保護它們，圖書資訊館地基往後退了十公尺。",
+      "source": "https://www.ddm.org.tw/default-fagushan/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010590721761923000"
+    },
+    {
+      "id": "yuantong-tunnel",
+      "latlon": [
+        25.24654,
+        121.619
+      ],
+      "name": "圓通海印隧道",
+      "group": "校園景點",
+      "desc": "法海路穿過的圓形隧道，洞口題有林章湖教授的篆書「圓通海印」，寓意由此圓通、前往海印觀海區；2018 年揭幕。",
+      "source": "https://www.dila.edu.tw/innerpage/aF1Zt6bzU0Jq4Yi9/6f9yQ90ZI4pR2pze"
+    },
+    {
+      "id": "haiyin-stone",
+      "latlon": [
+        25.24676,
+        121.61922
+      ],
+      "name": "海印三昧石",
+      "group": "校園景點",
+      "desc": "觀海區整地時湧現的巨石，由雕刻家張子隆教授佈置，兩面分刻林章湖教授篆書「海印三昧」與草書詩；2018 年揭幕。",
+      "source": "https://www.dila.edu.tw/innerpage/aF1Zt6bzU0Jq4Yi9/6f9yQ90ZI4pR2pze"
+    },
+    {
+      "id": "haiyin-trail",
+      "latlon": [
+        25.2469,
+        121.61965
+      ],
+      "name": "海印步道（觀海區）",
+      "group": "校園景點",
+      "desc": "靠近北校門的大片草坡，可遠眺金山平原與太平洋；步道旁種有落羽松、設有休憩石椅，2018 年啟用為經行步道。",
+      "source": "https://www.dila.edu.tw/dormitory"
+    },
+    {
+      "id": "faxi-trail",
+      "latlon": [
+        25.24407,
+        121.61565
+      ],
+      "name": "法喜步道",
+      "group": "校園景點",
+      "desc": "大願橋西側、往揚生館方向的校園步道。（位置依文理學院校園安全地圖推定）",
+      "source": "https://www.dila.edu.tw/campus1"
+    },
+    {
+      "id": "fayue-trail",
+      "latlon": [
+        25.24438,
+        121.6149
+      ],
+      "name": "法悅步道",
+      "group": "校園景點",
+      "desc": "禪悅書苑東側的校園步道。（位置依文理學院校園安全地圖推定）",
+      "source": "https://www.dila.edu.tw/campus1"
+    },
+    {
+      "id": "fayin-trail",
+      "latlon": [
+        25.24254,
+        121.6155
+      ],
+      "name": "法印步道",
+      "group": "校園景點",
+      "desc": "揚生館南側、通往法印書苑與圖書資訊館的校園步道。（位置依文理學院校園安全地圖推定）",
+      "source": "https://www.dila.edu.tw/campus1"
     }
   ],
   "extras": [

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { MapControls } from 'three/addons/controls/MapControls.js';
 import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 
-const GROUP_COLORS = { '文理學院': '#c0592b', '法鼓山園區': '#7a6a2f', '校門': '#3f6f8f' };
+const GROUP_COLORS = { '文理學院': '#c0592b', '校園景點': '#4f7d3f', '法鼓山園區': '#7a6a2f', '校門': '#3f6f8f' };
 const WALL = new THREE.Color('#e4ddcf');
 const GREEN_ROOF = new THREE.Color('#7f9b5c');
 const $ = (s) => document.querySelector(s);

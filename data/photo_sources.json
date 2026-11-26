@@ -188,5 +188,19 @@
         5
       ]
     }
-  }
+  },
+  "yuantong-tunnel": [
+    {
+      "url": "https://www.dila.edu.tw/files/uploads/news/2018/02_CampusNews/1101/1.jpg",
+      "credit": "法鼓文理學院",
+      "link": "https://www.dila.edu.tw/innerpage/aF1Zt6bzU0Jq4Yi9/6f9yQ90ZI4pR2pze"
+    }
+  ],
+  "haiyin-stone": [
+    {
+      "url": "https://www.dila.edu.tw/files/uploads/news/2018/02_CampusNews/1101/2.jpg",
+      "credit": "法鼓文理學院",
+      "link": "https://www.dila.edu.tw/innerpage/aF1Zt6bzU0Jq4Yi9/6f9yQ90ZI4pR2pze"
+    }
+  ]
 }
