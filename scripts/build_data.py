@@ -580,6 +580,7 @@ for x in extras:
         dense = dense[i0:i1 + 1]
     x['path'] = [[round(v, 2) for v in p] for p in dense[::3] + ([dense[-1]] if (len(dense) - 1) % 3 else [])]
 
+FAR_X = 700   # 原本的校園＋園區範圍東界約 x=654
 out = {
     'origin': cfg['origin'],
     'grid': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'step': GRID, 'nx': nx, 'nz': nz, 'h': grid, 'forest': forest},
@@ -588,7 +589,8 @@ out = {
     'buildings': buildings,
     'extras': extras,
     'roads': roads, 'waters': waters, 'streams': streams,
-    'trees': trees,
+    'trees': [t for t in trees if t[0] <= FAR_X],
+    'treesFar': [t for t in trees if t[0] > FAR_X],   # 東側擴充區（法鼓路往台 2 線）：用簡化樹，省效能
     'places': places,
 }
 json.dump(out, open(os.path.join(ROOT, 'data/campus.json'), 'w'), ensure_ascii=False, separators=(',', ':'))

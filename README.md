@@ -90,7 +90,7 @@ python3 scripts/build_data.py
 重新抓原始資料（OSM 存在 `.cache/osm.json`）：
 
 ```bash
-curl -s -A campus3d https://overpass-api.de/api/interpreter --data-urlencode 'data=[out:json][timeout:120];(way(25.2290,121.6060,25.2510,121.6260);relation(25.2290,121.6060,25.2510,121.6260)[type=multipolygon];node(25.2290,121.6060,25.2510,121.6260)[~"."~"."];);out geom;' -o .cache/osm.json
+curl -s -A campus3d https://overpass-api.de/api/interpreter --data-urlencode 'data=[out:json][timeout:120];(way(25.2290,121.6060,25.2510,121.6320);relation(25.2290,121.6060,25.2510,121.6320)[type=multipolygon];node(25.2290,121.6060,25.2510,121.6320)[~"."~"."];);out geom;' -o .cache/osm.json
 ```
 
 ```bash

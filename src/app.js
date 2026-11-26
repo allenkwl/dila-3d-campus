@@ -684,6 +684,7 @@ function addTrees(list, lite = false) {
   }
 }
 addTrees(data.trees);
+addTrees(data.treesFar, true);   // 東側擴充區用簡化樹
 
 // ---------- 選取外框 ----------
 const highlight = new THREE.LineSegments(new THREE.BufferGeometry(),
