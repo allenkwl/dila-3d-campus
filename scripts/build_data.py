@@ -360,7 +360,31 @@ while z < z_s - 3:
 extras = []
 for x in overrides.get('extras', []):
     rec = {k: v for k, v in x.items() if k not in ('latlon', 'path', '_註')}
-    if 'path' in x:   # 線狀物（橋）：每點帶地面高
+    if x['type'] == 'treeRow':   # 指定位置的特色樹（雀榕、落羽松）：沿路徑等距種，並清掉附近自動撒的樹
+        pts = [to_xz(*p) for p in x['path']]
+        segs = [(pts[i], pts[i + 1]) for i in range(len(pts) - 1)]
+        lens = [math.dist(a, b) for a, b in segs]
+        total, n = sum(lens), x['count']
+        row = []
+        for k in range(n):
+            d = total * (k / (n - 1) if n > 1 else 0.5)
+            for (a, b), L in zip(segs, lens):
+                if d <= L + 1e-6:
+                    t = d / L if L else 0
+                    px, pz = a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t
+                    break
+                d -= L
+            lat, lon = LAT0 - pz / MZ, LON0 + px / MX
+            s = x['s'] * (0.92 + 0.16 * ((k * 37) % 7) / 6)
+            row.append([round(px, 1), round(elev(lat, lon), 1), round(pz, 1), round(s, 2), *x['rgb'], x['kind']])
+        clear = x.get('clear', 6)
+        trees[:] = [t for t in trees if min(math.dist((t[0], t[2]), (r[0], r[2])) for r in row) > clear]
+        if x.get('model') == 'banyan':     # 獨立造型（粗幹、大傘冠），不混進一般樹
+            extras.append({'type': 'banyans', 'pts': [r[:4] for r in row], 'color': x.get('color', '#3f5f37')})
+        else:
+            trees.extend(row)
+        continue
+    if 'path' in x:   # 線狀物（橋、隧道）：每點帶地面高
         rec['path'] = [[round(to_xz(*p)[0], 2), round(elev(*p), 2), round(to_xz(*p)[1], 2)] for p in x['path']]
         extras.append(rec)
         continue

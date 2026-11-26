@@ -429,7 +429,132 @@ for (const x of data.extras || []) {
     extraGroup.add(g);
   } else if (x.type === 'bridge') {
     extraGroup.add(makeBridge(x));
+  } else if (x.type === 'tunnel') {
+    extraGroup.add(makeTunnel(x));
+  } else if (x.type === 'boulder') {
+    extraGroup.add(makeBoulder(x));
+  } else if (x.type === 'banyans') {
+    extraGroup.add(makeBanyans(x));
+  } else if (x.type === 'bench') {
+    const g = new THREE.Group();
+    g.position.set(x.x, x.y, x.z);
+    g.rotation.y = x.ang || 0;
+    const stone = lam(x.color || '#9c978c');
+    const seat = shadowed(new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.22, 0.6), stone));
+    seat.position.y = 0.5;
+    g.add(seat);
+    for (const s of [-0.8, 0.8]) {
+      const leg = shadowed(new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, 0.5), stone));
+      leg.position.set(s, 0.2, 0);
+      g.add(leg);
+    }
+    extraGroup.add(g);
   }
+}
+
+/** 圓通海印隧道：兩端擋土牆開圓拱洞口（白色拱圈、題字匾），中間半圓筒。path 兩點為兩端洞口。 */
+function makeTunnel(x) {
+  const [a, b] = x.path;
+  const dx = b[0] - a[0], dz = b[2] - a[2], dy = b[1] - a[1];
+  const L = Math.hypot(dx, dz), r = x.r, yc = 1.4;     // 拱心高於路面 yc
+  const g = new THREE.Group();
+  g.position.set((a[0] + b[0]) / 2, (a[1] + b[1]) / 2 + 0.3, (a[2] + b[2]) / 2);
+  g.rotation.order = 'YXZ';
+  g.rotation.y = Math.atan2(dx, dz);
+  g.rotation.x = -Math.atan2(dy, L);
+  const white = lam(x.ring || '#e9e7e1'), wallMat = lam(x.wall || '#aaa69b');
+  // 洞身：上半圓筒＋兩側直牆＋路面
+  const shell = new THREE.Mesh(new THREE.CylinderGeometry(r, r, L, 32, 1, true, Math.PI / 2, Math.PI), new THREE.MeshLambertMaterial({ color: x.ring || '#e9e7e1', side: THREE.DoubleSide }));
+  shell.rotation.x = Math.PI / 2;
+  shell.position.y = yc;
+  g.add(shell);
+  for (const s of [-1, 1]) {
+    const side = new THREE.Mesh(new THREE.BoxGeometry(0.3, yc + 0.6, L), white);
+    side.position.set(s * r, (yc - 0.6) / 2, 0);
+    g.add(side);
+  }
+  const road = new THREE.Mesh(new THREE.BoxGeometry(r * 2, 0.2, L + 2), lam('#4a4c4e'));
+  road.position.y = -0.1;
+  g.add(road);
+  // 洞口：擋土牆（挖圓拱洞）＋白色拱圈＋匾
+  const archPath = (p, rr, bottom) => {
+    p.moveTo(-rr, bottom); p.lineTo(-rr, yc); p.absarc(0, yc, rr, Math.PI, 0, true); p.lineTo(rr, bottom); p.lineTo(-rr, bottom);
+  };
+  const wallShape = new THREE.Shape();
+  const top = r + 3;                                  // 截面為梯形：兩側斜坡、頂部窄
+  wallShape.moveTo(-x.W / 2, -2); wallShape.lineTo(x.W / 2, -2); wallShape.lineTo(x.W / 2, 0.4); wallShape.lineTo(top, x.H); wallShape.lineTo(-top, x.H); wallShape.lineTo(-x.W / 2, 0.4); wallShape.lineTo(-x.W / 2, -2);
+  const hole = new THREE.Path(); archPath(hole, r + 0.9, -1); wallShape.holes.push(hole);
+  const ringShape = new THREE.Shape(); archPath(ringShape, r + 0.9, -0.6);
+  const ringHole = new THREE.Path(); archPath(ringHole, r, -0.5); ringShape.holes.push(ringHole);
+  // 土丘：整段沿洞身擠出，兩端截面是擋土牆（石紋灰），頂與側面是草坡
+  const hill = shadowed(new THREE.Mesh(new THREE.ExtrudeGeometry(wallShape, { depth: L, bevelEnabled: false, curveSegments: 24 }),
+    [wallMat, lam(x.grass || '#6d7a52')]));
+  hill.position.z = -L / 2;
+  g.add(hill);
+  const ringGeo = new THREE.ExtrudeGeometry(ringShape, { depth: 1.8, bevelEnabled: false, curveSegments: 24 });
+  for (const s of [1, -1]) {
+    const face = new THREE.Group();
+    face.position.z = s * L / 2;
+    face.rotation.y = s > 0 ? 0 : Math.PI;
+    const ring = shadowed(new THREE.Mesh(ringGeo, white));
+    ring.position.z = -0.6;
+    const plaque = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.7, 0.15), lam('#f4f2ec'));
+    plaque.position.set(0, yc + r + 1.35, 0.1);
+    face.add(ring, plaque);
+    g.add(face);
+  }
+  return g;
+}
+
+/** 七棵雀榕：粗短樹幹、氣根般分岔的枝幹，上撐寬大的傘狀樹冠（每棵約 16 公尺寬、13 公尺高）。 */
+function makeBanyans(x) {
+  const g = new THREE.Group();
+  const bark = new THREE.MeshLambertMaterial({ color: '#6b5a4a', flatShading: true });
+  const leaf = new THREE.MeshLambertMaterial({ color: x.color, flatShading: true });
+  const leaf2 = new THREE.MeshLambertMaterial({ color: new THREE.Color(x.color).offsetHSL(0.02, 0.05, 0.06), flatShading: true });
+  x.pts.forEach(([px, py, pz, s], i) => {
+    const t = new THREE.Group();
+    t.position.set(px, py - 0.3, pz);
+    t.rotation.y = i * 1.37;
+    t.scale.setScalar(s);
+    const trunk = shadowed(new THREE.Mesh(new THREE.CylinderGeometry(0.7, 1.3, 5.5, 7), bark));
+    trunk.position.y = 2.75;
+    t.add(trunk);
+    for (let k = 0; k < 4; k++) {               // 斜伸的主枝
+      const a = k * Math.PI / 2 + 0.4;
+      const br = shadowed(new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.45, 4.2, 5), bark));
+      br.position.set(Math.cos(a) * 1.3, 6.2, Math.sin(a) * 1.3);
+      br.rotation.set(Math.sin(a) * 0.75, 0, -Math.cos(a) * 0.75);
+      t.add(br);
+    }
+    const blobs = [[0, 10, 0, 4.6, 0], [4.2, 9, 1.2, 3.6, 1], [-4, 9.2, -0.8, 3.7, 0], [1, 9, -4, 3.5, 1], [-1.4, 8.8, 4, 3.4, 0], [0.6, 12, 0.4, 3.2, 1]];
+    for (const [bx, by, bz, r, alt] of blobs) {
+      const m = shadowed(new THREE.Mesh(new THREE.IcosahedronGeometry(r, 1), alt ? leaf2 : leaf));
+      m.position.set(bx, by, bz);
+      m.scale.y = 0.72;                          // 樹冠扁、往兩側撐開
+      t.add(m);
+    }
+    g.add(t);
+  });
+  return g;
+}
+
+/** 海印三昧石：不規則的大石（一部分埋入草地）。 */
+function makeBoulder(x) {
+  const geo = new THREE.IcosahedronGeometry(1, 2);
+  const p = geo.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    const n = 1 + 0.12 * Math.sin(v.x * 3.1 + v.y * 1.7) + 0.08 * Math.cos(v.z * 4.3 - v.x * 2.2);
+    v.multiplyScalar(n);
+    if (v.y < -0.35) v.y = -0.35;                         // 底部平，坐在地上
+    p.setXYZ(i, v.x * x.w / 2, v.y * x.h / 1.6, v.z * x.d / 2);
+  }
+  geo.computeVertexNormals();
+  const m = shadowed(new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: x.color, flatShading: true })));
+  m.position.set(x.x, x.y + 0.35 * x.h / 1.6 - 0.1, x.z);
+  m.rotation.y = x.ang || 0.6;
+  return m;
 }
 
 /** 大願橋：沿路徑的弧形橋面，兩端窄中間寬、中間拱起，兩側為實牆（箱梁）。 */
