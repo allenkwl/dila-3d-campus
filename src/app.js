@@ -297,6 +297,8 @@ function addBlocks(b, id, roofColor, wallColor) {
     b.peak = Math.max(b.peak, r.top + 1);
   }
   b.top = Math.max(...b.blocks.map((r) => r.top));
+  b.height = Math.max(...b.blocks.map((r) => r.top - r.ground));   // 資料卡顯示的高度
+  b.peak = b.top;
 }
 
 /** 在矩形 p 上蓋四坡（廡殿）屋頂；p.top 比建物簷口高時先補牆。 */
