@@ -544,6 +544,42 @@ for p in overrides['places']:
         y = elev(*p['latlon']) + 4
     places.append({**{k: v for k, v in p.items() if k not in ('latlon',)}, 'x': round(cx, 1), 'y': round(y, 1), 'z': round(cz, 1)})
 
+# 步道兩端若壓到車道（不含人行道），裁到車道邊外 1 公尺為止
+CAR_ROADS = [r for r in roads if r['w'] > ROAD_W['footway']]
+def road_clear(px, pz):
+    best = 1e9
+    for r in CAR_ROADS:
+        q = r['pts']
+        for (x1, z1), (x2, z2) in zip(q, q[1:]):
+            dx, dz = x2 - x1, z2 - z1
+            t = max(0, min(1, ((px - x1) * dx + (pz - z1) * dz) / (dx * dx + dz * dz or 1)))
+            best = min(best, math.hypot(px - x1 - t * dx, pz - z1 - t * dz) - r['w'] / 2)
+    return best
+def in_building(px, pz):
+    for b in buildings:
+        poly, c = b['poly'], False
+        for i in range(len(poly)):
+            (x1, z1), (x2, z2) = poly[i], poly[i - 1]
+            if (z1 > pz) != (z2 > pz) and px < x1 + (pz - z1) * (x2 - x1) / (z2 - z1):
+                c = not c
+        if c:
+            return True
+    return False
+for x in extras:
+    if x['type'] != 'trail':
+        continue
+    dense = []
+    for (x1, y1, z1), (x2, y2, z2) in zip(x['path'], x['path'][1:]):
+        n = max(1, int(math.hypot(x2 - x1, z2 - z1)))
+        dense += [[x1 + (x2 - x1) * k / n, y1 + (y2 - y1) * k / n, z1 + (z2 - z1) * k / n] for k in range(n)]
+    dense.append(x['path'][-1])
+    need = x['w'] / 2 + 1.0
+    ok = [road_clear(px, pz) >= need and not in_building(px, pz) for px, _, pz in dense]
+    if True in ok:
+        i0, i1 = ok.index(True), len(ok) - 1 - ok[::-1].index(True)
+        dense = dense[i0:i1 + 1]
+    x['path'] = [[round(v, 2) for v in p] for p in dense[::3] + ([dense[-1]] if (len(dense) - 1) % 3 else [])]
+
 out = {
     'origin': cfg['origin'],
     'grid': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'step': GRID, 'nx': nx, 'nz': nz, 'h': grid, 'forest': forest},

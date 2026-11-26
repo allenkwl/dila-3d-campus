@@ -259,5 +259,95 @@
       "caption": "",
       "_註": "影片截圖，手動加入"
     }
+  ],
+  "laiying-park": [
+    {
+      "local": "laiying-park-1.jpg",
+      "credit": "法鼓山世界佛教教育園區",
+      "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+      "caption": "來迎觀音",
+      "_註": "〈步道與公園〉頁附圖"
+    }
+  ],
+  "sanmen-rock-park": [
+    {
+      "local": "sanmen-rock-park-1.jpg",
+      "credit": "法鼓山世界佛教教育園區",
+      "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+      "caption": "曹源溪與三門大石公園",
+      "_註": "〈步道與公園〉頁附圖"
+    }
+  ],
+  "streamside-trail": [
+    {
+      "local": "streamside-trail-1.jpg",
+      "credit": "法鼓山世界佛教教育園區",
+      "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+      "caption": "臨溪朝山步道與賞水橋",
+      "_註": "〈步道與公園〉頁附圖"
+    }
+  ],
+  "huabaxian-park": [
+    {
+      "local": "huabaxian-park-1.jpg",
+      "credit": "法鼓山世界佛教教育園區",
+      "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+      "caption": "來迎觀音後方的步道與龍溪",
+      "_註": "〈步道與公園〉頁附圖"
+    }
+  ],
+  "yaoshi-buddha": [
+    {
+      "local": "yaoshi-buddha-1.jpg",
+      "credit": "法鼓山世界佛教教育園區",
+      "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+      "caption": "藥師古佛與步道",
+      "_註": "〈步道與公園〉頁附圖"
+    }
+  ],
+  "life-trail": [
+    {
+      "local": "life-trail-1.jpg",
+      "credit": "法鼓山世界佛教教育園區",
+      "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+      "caption": "生命園區步道",
+      "_註": "〈步道與公園〉頁附圖"
+    }
+  ],
+  "qiyuan-park": [
+    {
+      "local": "qiyuan-park-1.jpg",
+      "credit": "法鼓山世界佛教教育園區",
+      "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+      "caption": "祈願觀音公園與步道",
+      "_註": "〈步道與公園〉頁附圖"
+    }
+  ],
+  "fahua-park": [
+    {
+      "local": "fahua-park-1.jpg",
+      "credit": "法鼓山世界佛教教育園區",
+      "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+      "caption": "法華鐘樓與法華公園",
+      "_註": "〈步道與公園〉頁附圖"
+    }
+  ],
+  "wooden-trail": [
+    {
+      "local": "wooden-trail-1.jpg",
+      "credit": "法鼓山世界佛教教育園區",
+      "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+      "caption": "木棧步道",
+      "_註": "〈步道與公園〉頁附圖"
+    }
+  ],
+  "kaishan-park": [
+    {
+      "local": "kaishan-park-1.jpg",
+      "credit": "法鼓山世界佛教教育園區",
+      "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
+      "caption": "開山觀音",
+      "_註": "〈步道與公園〉頁附圖"
+    }
   ]
 }
