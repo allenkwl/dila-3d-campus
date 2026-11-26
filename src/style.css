@@ -128,3 +128,8 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
 /* 童話：鮮亮、圓潤 */
 #app[data-style="fairy"] #scene { filter: saturate(1.2) brightness(1.04); }
 #app[data-style="fairy"] .lbl { font-weight: 700; border: 2px solid var(--dot, #e58c2b); background: #fffdf5; color: #4a3520; }
+
+/* 指北針：N 與紅色箭頭隨鏡頭方位旋轉 */
+#btn-north span { display: inline-block; position: relative; font-size: 12px; font-weight: 700; line-height: 1; padding-top: 9px; }
+#btn-north span::before { content: ""; position: absolute; left: 50%; top: -3px; margin-left: -5px;
+  border: 5px solid transparent; border-bottom: 9px solid #c0392b; border-top: 0; }

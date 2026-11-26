@@ -381,7 +381,8 @@ for r in range(onz):
         oforest.append('1' if ok and is_forest(op[int(u), int(v)]) else ('2' if ok and sea[int(u), int(v)] else '0'))
 oforest = ''.join(oforest)
 
-# 外圍樹木：內圈外 500 公尺帶狀範圍，間距較大
+# 外圍樹木：內圈外 500 公尺帶狀範圍，間距較大（放進 outer.json，背景載入）
+otrees = []
 TS2 = 9.0
 z = oz_n
 while z < oz_s:
@@ -398,8 +399,8 @@ while z < oz_s:
                 lum = 0.3 * r + 0.59 * g + 0.11 * b
                 if g > r + 4 and g > b + 2 and lum < 95 and o_elev(lat, lon) > 2:
                     s_ = random.uniform(0.8, 1.4)
-                    trees.append([round(jx, 1), round(o_elev(lat, lon), 1), round(jz, 1), round(s_, 2),
-                                  int(r * 0.9), int(g * 0.95), int(b * 0.8)])
+                    otrees.append([round(jx, 1), round(o_elev(lat, lon), 1), round(jz, 1), round(s_, 2),
+                                   int(r * 0.9), int(g * 0.95), int(b * 0.8)])
         x += TS2
     z += TS2
 
@@ -450,8 +451,7 @@ out = {
     'origin': cfg['origin'],
     'grid': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'step': GRID, 'nx': nx, 'nz': nz, 'h': grid, 'forest': forest},
     'ortho': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'x1': round(x_e, 2), 'z1': round(z_s, 2)},
-    'outer': {'x0': round(ox_w, 2), 'z0': round(oz_n, 2), 'x1': round(ox_e, 2), 'z1': round(oz_s, 2),
-              'step': OSTEP, 'nx': onx, 'nz': onz, 'h': ogrid, 'forest': oforest},
+
     'buildings': buildings,
     'extras': extras,
     'roads': roads, 'waters': waters, 'streams': streams,
@@ -459,4 +459,9 @@ out = {
     'places': places,
 }
 json.dump(out, open(os.path.join(ROOT, 'data/campus.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
-print(f'grid {nx}x{nz}, buildings {len(buildings)}, trees {len(trees)}, places {len(places)}')
+# 外圍資料另存一檔，網頁先顯示校區再背景載入
+outer = {'outer': {'x0': round(ox_w, 2), 'z0': round(oz_n, 2), 'x1': round(ox_e, 2), 'z1': round(oz_s, 2),
+                   'step': OSTEP, 'nx': onx, 'nz': onz, 'h': ogrid, 'forest': oforest},
+         'trees': otrees}
+json.dump(outer, open(os.path.join(ROOT, 'data/outer.json'), 'w'), separators=(',', ':'))
+print(f'grid {nx}x{nz}, buildings {len(buildings)}, trees {len(trees)}+{len(otrees)} outer, places {len(places)}')

@@ -10,7 +10,11 @@ const $ = (s) => document.querySelector(s);
 const V = new URL(import.meta.url).searchParams.get('v') || '';
 const withV = (u) => (V ? `${u}?v=${V}` : u);
 const getJSON = (u) => fetch(withV(u)).then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
-const [data, details, photos] = await Promise.all([getJSON('data/campus.json'), getJSON('data/details.json'), getJSON('data/photos.json')]);
+// 分段載入：先拿校區核心資料就開始畫；照片、說明、外圍地形與空拍圖都在背景補上
+const data = await getJSON('data/campus.json');
+let details = {}, photos = {};
+getJSON('data/details.json').then((d) => { details = d; });
+getJSON('data/photos.json').then((d) => { photos = d; });
 const canvas = $('#scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -78,19 +82,26 @@ const terrainGeo = (() => {
   g.computeVertexNormals();
   return g;
 })();
-const orthoTex = await new THREE.TextureLoader().loadAsync(withV('data/ortho.jpg'));
-orthoTex.colorSpace = THREE.SRGBColorSpace;
-orthoTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-const photoMat = new THREE.MeshLambertMaterial({ map: orthoTex });
+function loadTex(url, onLoad) {
+  new THREE.TextureLoader().load(withV(url), (t) => {
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    onLoad(t);
+  });
+}
+// 空拍圖載入前先用素色地面，載入後再換上
+const photoMat = new THREE.MeshLambertMaterial({ color: '#8c9a7c' });
+loadTex('data/ortho.jpg', (t) => { photoMat.map = t; photoMat.color.set('#ffffff'); photoMat.needsUpdate = true; });
 const plainMat = new THREE.MeshLambertMaterial({ vertexColors: true });
 const terrain = new THREE.Mesh(terrainGeo, photoMat);
 terrain.receiveShadow = true;
 scene.add(terrain);
 
-// ---------- 外圍地形：低解析度，讓地圖邊緣不入鏡；和內圈重疊的部分挖空 ----------
-const outerMesh = await (async () => {
-  const O = data.outer;
-  if (!O) return null;
+// ---------- 外圍地形：低解析度，讓地圖邊緣不入鏡；和內圈重疊的部分挖空（背景載入，見檔尾） ----------
+let outerMesh = null;
+const OFFSET = { polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2 };   // 外圈稍往後推，避免交界閃爍
+const outerPhotoMat = new THREE.MeshLambertMaterial({ color: '#8c9a7c', ...OFFSET });
+function buildOuterMesh(O) {
   const { nx, nz, step, x0, z0 } = O;
   const pos = new Float32Array(nx * nz * 3), uv = new Float32Array(nx * nz * 2);
   for (let r = 0; r < nz; r++) for (let c = 0; c < nx; c++) {
@@ -109,17 +120,13 @@ const outerMesh = await (async () => {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(nx * nz * 3), 3));
   g.setIndex(idx);
   g.computeVertexNormals();
-  const tex = await new THREE.TextureLoader().loadAsync(withV('data/ortho_outer.jpg'));
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  // polygonOffset 把外圈稍微往後推，避免和內圈交界處閃爍
-  const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ map: tex, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2 }));
+  const m = new THREE.Mesh(g, outerPhotoMat);
   m.receiveShadow = true;
-  scene.add(m);
   return m;
-})();
+}
 
 // ---------- 建物 ----------
 // ---------- 立面貼圖（程式產生；一格 = 寬 4 公尺 × 一層樓） ----------
@@ -477,22 +484,34 @@ for (const [kind, B] of facadeBuckets) {
 roofMesh.userData.owner = roofOwner;
 
 // ---------- 樹木 ----------
-const treeGeo = new THREE.IcosahedronGeometry(1, 0);
-const treeMesh = new THREE.InstancedMesh(treeGeo, new THREE.MeshLambertMaterial({ flatShading: true }), data.trees.length);
-{
-  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), col = new THREE.Color(), e = new THREE.Euler();
-  data.trees.forEach(([x, y, z, s, r, g, b], i) => {
+// 樹分批：校區的先畫，外圍的等 outer.json 到了再加
+const treeFacet = new THREE.IcosahedronGeometry(1, 0), treeRound = new THREE.IcosahedronGeometry(1, 2);
+const treeLambert = new THREE.MeshLambertMaterial({ flatShading: true });
+const treeSets = [];
+function placeTrees(set, k) {
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler();
+  set.list.forEach(([x, y, z, s], i) => {
     e.set(0, (i * 2.399) % 6.283, 0);
     q.setFromEuler(e);
-    m.compose(new THREE.Vector3(x, y + 2.6 * s, z), q, new THREE.Vector3(3.6 * s, 3.4 * s, 3.6 * s));
-    treeMesh.setMatrixAt(i, m);
-    col.setRGB(r / 255, g / 255, b / 255, THREE.SRGBColorSpace).offsetHSL(0, 0.05, 0.05);
-    treeMesh.setColorAt(i, col);
+    m.compose(new THREE.Vector3(x, y + 2.6 * s * k, z), q, new THREE.Vector3(3.6 * s * k, 3.4 * s * k, 3.6 * s * k));
+    set.mesh.setMatrixAt(i, m);
   });
+  set.mesh.instanceMatrix.needsUpdate = true;
+  set.scale = k;
 }
-treeMesh.castShadow = true;
-treeMesh.receiveShadow = true;
-scene.add(treeMesh);
+function addTrees(list) {
+  if (!list?.length) return null;
+  const mesh = new THREE.InstancedMesh(treeFacet, treeLambert, list.length);
+  const set = { mesh, list, scale: 0 };
+  placeTrees(set, 1);
+  mesh.setColorAt(0, new THREE.Color());
+  mesh.castShadow = mesh.receiveShadow = true;
+  mesh.visible = $('#opt-trees')?.checked !== false;
+  scene.add(mesh);
+  treeSets.push(set);
+  return set;
+}
+addTrees(data.trees);
 
 // ---------- 選取外框 ----------
 const highlight = new THREE.LineSegments(new THREE.BufferGeometry(),
@@ -664,10 +683,7 @@ $('#btn-fs').addEventListener('click', () => {
   if (document.fullscreenElement) document.exitFullscreen(); else $('#app').requestFullscreen?.();
 });
 // ---------- 畫風 ----------
-const outerPhotoMat = outerMesh?.material;
-const OFFSET = { polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2 };
 const outerPlainMat = new THREE.MeshLambertMaterial({ vertexColors: true, ...OFFSET });
-if (outerMesh) outerMesh.geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(outerMesh.geometry.attributes.position.count * 3), 3));
 
 // 道路、溪流、水池（插畫風格才顯示；寫實風格由空拍圖呈現）
 function ribbon(pts, w, lift) {
@@ -749,30 +765,18 @@ const toonGrad = (() => {
 const toonOf = new Map(colorMeshes.map((m) => [m, new THREE.MeshToonMaterial({ map: m.material.map || null, vertexColors: true, side: THREE.DoubleSide, gradientMap: toonGrad })]));
 
 // 樹：風格各自的色盤與外形
-const treeBase = data.trees.map(([, , , , r, g, b]) => [r / 255, g / 255, b / 255]);
-const treeFacet = treeMesh.geometry, treeRound = new THREE.IcosahedronGeometry(1, 2);
-const treeLambert = treeMesh.material, treeToon = new THREE.MeshToonMaterial({ gradientMap: toonGrad });
-let treeScaleNow = 1;
-function setTreeScale(k) {
-  if (k === treeScaleNow) return;
-  treeScaleNow = k;
-  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler();
-  data.trees.forEach(([x, y, z, s], i) => {
-    e.set(0, (i * 2.399) % 6.283, 0);
-    q.setFromEuler(e);
-    m.compose(new THREE.Vector3(x, y + 2.6 * s * k, z), q, new THREE.Vector3(3.6 * s * k, 3.4 * s * k, 3.6 * s * k));
-    treeMesh.setMatrixAt(i, m);
-  });
-  treeMesh.instanceMatrix.needsUpdate = true;
-}
+const treeToon = new THREE.MeshToonMaterial({ gradientMap: toonGrad });
+function setTreeScale(k) { for (const set of treeSets) if (set.scale !== k) placeTrees(set, k); }
 function paintTrees(pal) {
   const c = new THREE.Color();
-  treeBase.forEach(([r, g, b], i) => {
-    if (!pal) c.setRGB(r, g, b, THREE.SRGBColorSpace).offsetHSL(0, 0.05, 0.05);
-    else c.set(pal[i % 7 < 3 ? 0 : i % 7 < 6 ? 1 : 2]).offsetHSL(0, 0, ((i * 7919) % 100) / 1000 - 0.05);
-    treeMesh.setColorAt(i, c);
-  });
-  treeMesh.instanceColor.needsUpdate = true;
+  for (const { mesh, list } of treeSets) {
+    list.forEach(([, , , , r, g, b], i) => {
+      if (!pal) c.setRGB(r / 255, g / 255, b / 255, THREE.SRGBColorSpace).offsetHSL(0, 0.05, 0.05);
+      else c.set(pal[i % 7 < 3 ? 0 : i % 7 < 6 ? 1 : 2]).offsetHSL(0, 0, ((i * 7919) % 100) / 1000 - 0.05);
+      mesh.setColorAt(i, c);
+    });
+    mesh.instanceColor.needsUpdate = true;
+  }
 }
 
 const STYLES = {
@@ -798,8 +802,7 @@ function applyStyle(key) {
   scene.background = new THREE.Color(st.sky);
   scene.fog.color.set(st.sky); scene.fog.near = st.fog[0]; scene.fog.far = st.fog[1];
   hemi.intensity = st.hemi; sun.intensity = st.sun;
-  treeMesh.geometry = st.round ? treeRound : treeFacet;
-  treeMesh.material = st.toon ? treeToon : treeLambert;
+  for (const { mesh } of treeSets) { mesh.geometry = st.round ? treeRound : treeFacet; mesh.material = st.toon ? treeToon : treeLambert; }
   paintTrees(st.trees);
   tintBuildings(st.sat, st.light);
   for (const m of colorMeshes) m.material = st.toon ? toonOf.get(m) : lambertOf.get(m);
@@ -816,8 +819,78 @@ document.querySelectorAll('.style-tools button').forEach((b) => b.addEventListen
   try { saved = localStorage.getItem('campus3d-style'); } catch {}
   applyStyle(new URLSearchParams(location.search).get('style') || saved || 'real');
 }
-$('#opt-trees').addEventListener('change', (e) => { treeMesh.visible = e.target.checked; });
+$('#opt-trees').addEventListener('change', (e) => { for (const { mesh } of treeSets) mesh.visible = e.target.checked; });
+
+// ---------- 背景載入外圍：地形與樹先到先畫，空拍圖最後補上 ----------
+getJSON('data/outer.json').then((od) => {
+  if (!od.outer) return;
+  data.outer = od.outer;
+  outerMesh = buildOuterMesh(od.outer);
+  scene.add(outerMesh);
+  addTrees(od.trees);
+  applyStyle(styleKey);
+  loadTex('data/ortho_outer.jpg', (t) => { outerPhotoMat.map = t; outerPhotoMat.color.set('#ffffff'); outerPhotoMat.needsUpdate = true; });
+});
 $('#opt-labels').addEventListener('change', (e) => { labelsEl.style.display = e.target.checked ? '' : 'none'; });
+
+// ---------- 旋轉與傾斜手勢 ----------
+// 滑鼠：左鍵拖曳平移；右鍵、或按住 Shift／Ctrl／⌘ 拖曳旋轉（MapControls 內建）；滾輪縮放
+// 觸控板：雙指捏合縮放；雙指左右滑動旋轉、上下滑動調整俯仰
+// 手機：單指平移；雙指捏合縮放、雙指旋轉轉向、雙指上下拖曳調整俯仰
+function orbit(dAz, dPolar) {
+  const off = camera.position.clone().sub(controls.target);
+  const sph = new THREE.Spherical().setFromVector3(off);
+  sph.theta += dAz;
+  sph.phi = Math.min(controls.maxPolarAngle, Math.max(0.12, sph.phi + dPolar));
+  camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sph));
+  anim = null;
+}
+canvas.addEventListener('wheel', (e) => {
+  if (e.ctrlKey) return;                       // 觸控板捏合（瀏覽器會帶 ctrlKey）→ 交給 MapControls 縮放
+  // 判斷觸控板：有水平分量；或 Chrome／Safari 觸控板的 wheelDeltaY 恰為 deltaY 的 -3 倍；Firefox 則看是否為非整數像素
+  const w = e.wheelDeltaY;
+  const trackpad = e.deltaX !== 0 || (w !== undefined && e.deltaY !== 0 && w === -3 * e.deltaY)
+    || (w === undefined && e.deltaMode === 0 && !Number.isInteger(e.deltaY));
+  if (!trackpad) return;                       // 滑鼠滾輪 → 縮放
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  orbit(e.deltaX * 0.004, e.deltaY * 0.003);
+}, { capture: true, passive: false });
+{
+  let lastAng = null;
+  const ang = (t) => Math.atan2(t[1].clientY - t[0].clientY, t[1].clientX - t[0].clientX);
+  canvas.addEventListener('touchstart', (e) => { lastAng = e.touches.length === 2 ? ang(e.touches) : null; }, { passive: true });
+  canvas.addEventListener('touchmove', (e) => {
+    if (e.touches.length !== 2 || lastAng === null) return;
+    const a = ang(e.touches);
+    let d = a - lastAng;
+    if (d > Math.PI) d -= 2 * Math.PI; else if (d < -Math.PI) d += 2 * Math.PI;
+    lastAng = a;
+    if (Math.abs(d) < 0.3) orbit(d, 0);         // 雙指旋轉：地圖跟著手指轉
+  }, { passive: true });
+  canvas.addEventListener('touchend', (e) => { if (e.touches.length < 2) lastAng = null; }, { passive: true });
+}
+// 鍵盤：Q／E 旋轉、R／F 俯仰
+addEventListener('keydown', (e) => {
+  if (!modal.hidden || e.target.closest?.('input, textarea')) return;
+  const k = e.key.toLowerCase();
+  if (k === 'q') orbit(0.08, 0); else if (k === 'e') orbit(-0.08, 0);
+  else if (k === 'r') orbit(0, -0.06); else if (k === 'f') orbit(0, 0.06);
+});
+// 指北針：箭頭指向北方，點一下轉回正北
+const compass = $('#btn-north');
+compass.addEventListener('click', () => {
+  const sph = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
+  flyTo(controls.target.clone(), sph.radius, sph.phi, 0);
+});
+function updateCompass() {
+  const sph = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
+  compass.firstElementChild.style.transform = `rotate(${sph.theta}rad)`;
+}
+// 操作提示依裝置顯示
+$('#panel footer').textContent = matchMedia('(pointer: coarse)').matches
+  ? '單指平移・雙指捏合縮放・雙指旋轉轉向・雙指上下滑調整角度'
+  : '拖曳平移・右鍵或 Shift 拖曳旋轉・觸控板雙指滑動旋轉／捏合縮放・Q E 旋轉';
 
 // ---------- 點選建物 ----------
 const ray = new THREE.Raycaster();
@@ -891,6 +964,7 @@ function tick(now) {
   }
   controls.update();
   clampView();
+  updateCompass();
   renderer.render(scene, camera);
   updateLabels();
   requestAnimationFrame(tick);

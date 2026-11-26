@@ -23,10 +23,25 @@ cd ~/Documents/DILA/campus-3d && python3 -m http.server 8731
 | `data/details.json` | **手動維護**：地標視窗的詳細說明、重點條列、資料來源 |
 | `data/photo_sources.json` | **手動維護**：各地標照片來源（法鼓山官網、文理學院官網、Wikimedia Commons） |
 | `data/photos/`、`data/photos.json` | 由 `scripts/fetch_photos.py` 產生的照片與出處；換成自拍照片時直接替換檔案、改 `photos.json` |
-| `data/campus.json`、`data/ortho.jpg` | 由腳本產生，不要手改 |
+| `data/campus.json`、`data/outer.json`、`data/ortho.jpg`、`data/ortho_outer.jpg` | 由腳本產生，不要手改 |
 | `scripts/config.json` | 場景範圍與原點 |
 | `scripts/fetch_tiles.py` | 下載地形與正射影像圖磚 |
 | `scripts/build_data.py` | 產生 `data/campus.json`、`data/ortho.jpg` |
+
+## 操作
+
+| 裝置 | 平移 | 縮放 | 旋轉 | 俯仰 |
+| --- | --- | --- | --- | --- |
+| 手機／平板 | 單指拖曳 | 雙指捏合 | 雙指旋轉 | 雙指上下拖曳 |
+| Mac 觸控板 | 按住拖曳 | 雙指捏合 | 雙指左右滑 | 雙指上下滑 |
+| 滑鼠 | 左鍵拖曳 | 滾輪 | 右鍵拖曳，或 Shift／Ctrl／⌘＋拖曳 | 同左（上下拖） |
+| 鍵盤 | — | — | Q／E | R／F |
+
+右上角指北針顯示目前朝向，點一下轉回正北。
+
+## 載入順序
+
+先載入 `data/campus.json`（校區地形、建物、標籤）就開始顯示；校區空拍圖、`data/outer.json`（外圍地形與樹木）、外圍空拍圖、照片與說明都在背景載入，到了再補上。
 
 ## 外觀依據
 
