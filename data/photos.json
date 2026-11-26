@@ -614,5 +614,25 @@
    "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L008396641716424748",
    "caption": "開山觀音"
   }
+ ],
+ "emblem-rock": [
+  {
+   "src": "data/photos/emblem-rock-1.jpg",
+   "w": 1280,
+   "h": 853,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010705859949206028",
+   "caption": "法鼓路入口安全島上的山徽石"
+  }
+ ],
+ "lingshan-stone": [
+  {
+   "src": "data/photos/lingshan-stone-1.jpg",
+   "w": 1280,
+   "h": 853,
+   "credit": "法鼓山世界佛教教育園區",
+   "link": "https://fagushan.ddm.org.tw/xmdoc/cont?xsmsid=0K359565063711046420&sid=0L010705859949206028",
+   "caption": "靈山勝境石"
+  }
  ]
 }

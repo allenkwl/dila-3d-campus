@@ -433,6 +433,20 @@ for (const x of data.extras || []) {
     extraGroup.add(makeTunnel(x));
   } else if (x.type === 'boulder') {
     extraGroup.add(makeBoulder(x));
+  } else if (x.type === 'island') {      // 道路中央的安全島：圓角長條草皮，外圍路緣石
+    const shape = new THREE.Shape();
+    const L = x.len / 2, R = x.wid / 2;
+    shape.moveTo(-L + R, -R); shape.lineTo(L - R, -R); shape.absarc(L - R, 0, R, -Math.PI / 2, Math.PI / 2);
+    shape.lineTo(-L + R, R); shape.absarc(-L + R, 0, R, Math.PI / 2, Math.PI * 1.5);
+    const curb = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.35, bevelEnabled: false }), lam('#c9c4b8'));
+    const grass = new THREE.Mesh(new THREE.ShapeGeometry(shape.clone()), lam(x.color));
+    const g = new THREE.Group();
+    curb.rotation.x = grass.rotation.x = -Math.PI / 2;
+    grass.position.y = 0.37; grass.scale.set(0.94, 0.85, 1);
+    g.add(curb, grass);
+    g.position.set(x.x, x.y - 0.1, x.z);
+    g.rotation.y = (x.ang || 0) - Math.PI / 2;   // 長軸沿道路方向
+    extraGroup.add(g);
   } else if (x.type === 'banyans') {
     extraGroup.add(makeBanyans(x));
   } else if (x.type === 'bench') {
