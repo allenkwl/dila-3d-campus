@@ -580,7 +580,21 @@ for x in extras:
         dense = dense[i0:i1 + 1]
     x['path'] = [[round(v, 2) for v in p] for p in dense[::3] + ([dense[-1]] if (len(dense) - 1) % 3 else [])]
 
-FAR_X = 700   # 原本的校園＋園區範圍東界約 x=654
+# 樹只種在校園與園區範圍內（OSM：法鼓文理學院校地、法鼓山世界佛教教育園區）
+AREA_IDS = (1255168300, 387137553)
+areas = [[to_xz(p['lat'], p['lon']) for p in e['geometry']] for e in osm['elements']
+         if e.get('id') in AREA_IDS and e['type'] == 'way' and 'geometry' in e]
+def in_area(px, pz):
+    for poly in areas:
+        c = False
+        for i in range(len(poly)):
+            (x1, z1), (x2, z2) = poly[i], poly[i - 1]
+            if (z1 > pz) != (z2 > pz) and px < x1 + (pz - z1) * (x2 - x1) / (z2 - z1):
+                c = not c
+        if c:
+            return True
+    return False
+trees = [t for t in trees if in_area(t[0], t[2])]
 out = {
     'origin': cfg['origin'],
     'grid': {'x0': round(x_w, 2), 'z0': round(z_n, 2), 'step': GRID, 'nx': nx, 'nz': nz, 'h': grid, 'forest': forest},
@@ -589,14 +603,13 @@ out = {
     'buildings': buildings,
     'extras': extras,
     'roads': roads, 'waters': waters, 'streams': streams,
-    'trees': [t for t in trees if t[0] <= FAR_X],
-    'treesFar': [t for t in trees if t[0] > FAR_X],   # 東側擴充區（法鼓路往台 2 線）：用簡化樹，省效能
+    'trees': trees,
     'places': places,
 }
 json.dump(out, open(os.path.join(ROOT, 'data/campus.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
 # 外圍資料另存一檔，網頁先顯示校區再背景載入
 outer = {'outer': {'x0': round(ox_w, 2), 'z0': round(oz_n, 2), 'x1': round(ox_e, 2), 'z1': round(oz_s, 2),
                    'step': OSTEP, 'nx': onx, 'nz': onz, 'h': ogrid, 'forest': oforest},
-         'trees': otrees}
+         'trees': []}   # 外圍不放樹
 json.dump(outer, open(os.path.join(ROOT, 'data/outer.json'), 'w'), separators=(',', ':'))
 print(f'grid {nx}x{nz}, buildings {len(buildings)}, trees {len(trees)}+{len(otrees)} outer, places {len(places)}')

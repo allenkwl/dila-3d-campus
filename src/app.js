@@ -698,7 +698,6 @@ function addTrees(list, lite = false) {
   }
 }
 addTrees(data.trees);
-addTrees(data.treesFar, true);   // 東側擴充區用簡化樹
 
 // ---------- 選取外框 ----------
 const highlight = new THREE.LineSegments(new THREE.BufferGeometry(),
@@ -1021,7 +1020,6 @@ getJSON('data/outer.json').then((od) => {
   data.outer = od.outer;
   outerMesh = buildOuterMesh(od.outer);
   scene.add(outerMesh);
-  addTrees(od.trees, true);
   applyStyle(styleKey);
   loadTex('data/ortho_outer.jpg', (t) => { outerPhotoMat.map = t; outerPhotoMat.color.set('#ffffff'); outerPhotoMat.needsUpdate = true; });
 });
